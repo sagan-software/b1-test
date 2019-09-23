@@ -3,20 +3,48 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "connected-react-router": "^6.5.2",
+    "eosjs": "^20.0.0",
+    "highcharts": "^7.2.0",
+    "highcharts-react-official": "^2.2.2",
+    "history": "^4.10.1",
+    "markdown-it": "^10.0.0",
+    "normalize.css": "^8.0.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-redux": "^7.1.1",
+    "react-router": "^5.0.1",
+    "react-scripts": "3.1.2",
+    "react-sparklines": "^1.7.0",
+    "redux": "^4.0.4",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-saga": "^1.1.1",
+    "styled-components": "^4.3.2"
+  },
+  "devDependencies": {
+    "@blockone/tslint-config-blockone": "^4.0.1",
+    "@types/history": "^4.7.3",
     "@types/jest": "24.0.18",
+    "@types/markdown-it": "^0.0.8",
     "@types/node": "12.7.5",
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-scripts": "3.1.2",
+    "@types/react-redux": "^7.1.2",
+    "@types/react-router": "^5.0.5",
+    "@types/react-sparklines": "^1.7.0",
+    "@types/styled-components": "^4.1.19",
+    "cross-env": "^6.0.0",
+    "tslint": "^5.20.0",
+    "tslint-react": "^4.1.0",
+    "tslint-react-hooks": "^2.2.1",
     "typescript": "3.6.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "tslint --project ."
   },
   "eslintConfig": {
     "extends": "react-app"
