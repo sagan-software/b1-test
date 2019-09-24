@@ -1,21 +1,14 @@
 import React from 'react'
-import { ConnectedRouter } from 'connected-react-router'
-import { Route, Switch } from 'react-router'
 import styled, {
   createGlobalStyle,
   ThemeProps,
   ThemeProvider,
 } from 'styled-components'
-import HomePage from './HomePage'
-import ChainPage from './ChainPage'
-import SettingsPage from './SettingsPage'
-import BlockPage from './SettingsPage'
-import NotFoundPage from './NotFoundPage'
-import { Theme, darkTheme } from '../styles'
-import { history } from '../store'
-import { getRouteTemplate, RouteType } from '../routes'
+import { useSelector, useDispatch } from 'react-redux'
+import * as store from '../store'
+import Chain from './Chain'
 
-const GlobalStyles = createGlobalStyle<ThemeProps<Theme>>`
+const GlobalStyles = createGlobalStyle<ThemeProps<store.Theme>>`
 body {
   background-color: ${(props) => props.theme.bgColor};
   color: ${(props) => props.theme.textColor};
@@ -34,36 +27,34 @@ const AppNav = styled.nav``
 export const AppMain = styled.main``
 
 const Component: React.FC = () => {
+  const theme = useSelector(store.getTheme)
+  const dispatch = useDispatch<typeof store.store.dispatch>()
+  const urlInput = useSelector(store.getUrlInput)
+  const onChangeUrlInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    dispatch(store.setUrl(e.target.value))
+  const autoplay = useSelector(store.getAutoplay)
+  const maxBlockCount = useSelector(store.getMaxBlockCount)
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <AppContainer>
         <AppHeader>
-          <AppTitle>eosblock.watch</AppTitle>
-          <AppNav>Settings</AppNav>
+          <AppTitle>b1-test</AppTitle>
+          <form>
+            <input value={urlInput} type='url' onChange={onChangeUrlInput} />
+            <label>
+              <input type='checkbox' checked={autoplay} />
+              Autoplay
+            </label>
+            <label>
+              <input value={maxBlockCount} type='number' />
+              Max Block Count
+            </label>
+            <button type='submit'>Go</button>
+          </form>
         </AppHeader>
-        <ConnectedRouter history={history}>
-          <Switch>
-            <Route
-              exact={true}
-              path={getRouteTemplate(RouteType.Home)}
-              component={HomePage}
-            />
-            <Route
-              exact={true}
-              path={getRouteTemplate(RouteType.Settings)}
-              component={SettingsPage}
-            />
-            <Route
-              path={getRouteTemplate(RouteType.Chain)}
-              component={ChainPage}
-            />
-            <Route
-              path={getRouteTemplate(RouteType.Block)}
-              component={BlockPage}
-            />
-            <Route component={NotFoundPage} />
-          </Switch>
-        </ConnectedRouter>
+        <main>
+          <Chain />
+        </main>
         <GlobalStyles />
       </AppContainer>
     </ThemeProvider>
