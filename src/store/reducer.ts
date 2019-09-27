@@ -1,90 +1,60 @@
 import {
   Action,
   ActionType,
-  SetUrl,
+  UrlInput,
   SetAutoplay,
   SetMaxBlockCount,
-  FetchInfo,
-  FetchedInfo,
-  FetchBlock,
-  FetchedBlock,
   SetTheme,
-} from './actions'
+  GetInfoRequest,
+  GetInfoResponse,
+  GetBlockRequest,
+  GetBlockResponse,
+} from '../actions/actionTypes'
 import {
   defaultState,
   State,
-  remoteDataDefault,
-  RemoteDataStatus,
+  getInfoData,
+  RemoteDataType,
   remoteDataLoading,
-  remoteDataUpdating,
-  RpcServerStatus,
-  RpcServerErrorType,
-} from './state'
+  remoteDataSuccess,
+  getBlockData,
+} from '../state'
 
 export function reducer(
   state: Readonly<State> = defaultState,
   action: Readonly<Action>,
 ): Readonly<State> {
   switch (action.type) {
-  case ActionType.SetUrl:
-    return onSetUrl(state, action)
+  case ActionType.UrlInput:
+    return onUrlInput(state, action)
   case ActionType.SetAutoplay:
     return onSetAutoplay(state, action)
   case ActionType.SetMaxBlockCount:
     return onSetMaxBlockCount(state, action)
-  case ActionType.FetchInfo:
-    return onFetchInfo(state, action)
-  case ActionType.FetchedInfo:
-    return onFetchedInfo(state, action)
-  case ActionType.FetchBlock:
-    return onFetchBlock(state, action)
-  case ActionType.FetchedBlock:
-    return onFetchedBlock(state, action)
   case ActionType.SetTheme:
     return onSetTheme(state, action)
+  case ActionType.GetInfoRequest:
+    return onGetInfoRequest(state, action)
+  case ActionType.GetInfoResponse:
+    return onGetInfoResponse(state, action)
+  case ActionType.GetBlockRequest:
+    return onGetBlockRequest(state, action)
+  case ActionType.GetBlockResponse:
+    return onGetBlockResponse(state, action)
+  case ActionType.GetAbiRequest:
+  case ActionType.GetAbiResponse:
   default:
     return state
   }
 }
 
-function onSetUrl(
+function onUrlInput(
   state: Readonly<State>,
-  action: Readonly<SetUrl>,
+  action: Readonly<UrlInput>,
 ): Readonly<State> {
-  let url: URL
-  try {
-    url = new URL(action.input)
-  } catch (e) {
-    return {
-      ...state,
-      server: {
-        status: RpcServerStatus.InvalidUrl,
-        errorType: RpcServerErrorType.NotUrl,
-        input: action.input,
-      },
-    }
-  }
-
-  if (url.protocol !== 'https:') {
-    return {
-      ...state,
-      server: {
-        status: RpcServerStatus.InvalidUrl,
-        errorType: RpcServerErrorType.NotHttps,
-        input: action.input,
-      },
-    }
-  }
-
   return {
     ...state,
-    server: {
-      status: RpcServerStatus.ValidUrl,
-      input: action.input,
-      url,
-      info: remoteDataDefault(),
-      blocks: {},
-    },
+    urlInput: action.input,
   }
 }
 
@@ -106,103 +76,76 @@ function onSetMaxBlockCount(
   return state
 }
 
-function onFetchInfo(
+function onGetInfoRequest(
   state: Readonly<State>,
-  action: Readonly<FetchInfo>,
+  action: Readonly<GetInfoRequest>,
 ): Readonly<State> {
-  if (state.server.status === RpcServerStatus.ValidUrl) {
-    switch (state.server.info.status) {
-    case RemoteDataStatus.Error:
-    case RemoteDataStatus.Default:
-      return {
-          ...state,
-          server: {
-            ...state.server,
-            info: remoteDataLoading(),
-          },
-        }
-    case RemoteDataStatus.Ok:
-      return {
-          ...state,
-          server: {
-            ...state.server,
-            info: remoteDataUpdating(state.server.info.data),
-          },
-        }
-    default:
-      return state
+  if (state.chain.type === RemoteDataType.Success) {
+    const infoData = getInfoData(state)
+    return {
+      ...state,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
+        info: remoteDataLoading(infoData),
+      }),
     }
   } else {
     return state
   }
 }
 
-function onFetchedInfo(
+function onGetInfoResponse(
   state: Readonly<State>,
-  action: Readonly<FetchedInfo>,
+  action: Readonly<GetInfoResponse>,
 ): Readonly<State> {
-  if (state.server.status === RpcServerStatus.ValidUrl) {
+  if (state.chain.type === RemoteDataType.Success) {
     return {
       ...state,
-      server: {
-        ...state.server,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
         info: action.info,
-      },
+      }),
     }
   } else {
     return state
   }
 }
 
-function onFetchBlock(
+function onGetBlockRequest(
   state: Readonly<State>,
-  action: Readonly<FetchBlock>,
+  action: Readonly<GetBlockRequest>,
 ): Readonly<State> {
-  if (state.server.status === RpcServerStatus.ValidUrl) {
-    let block = state.server.blocks[action.blockNum]
-    if (block) {
-      switch (block.status) {
-      case RemoteDataStatus.Error:
-      case RemoteDataStatus.Default:
-        block = remoteDataLoading()
-        break
-      case RemoteDataStatus.Updating:
-      case RemoteDataStatus.Ok:
-        block = remoteDataUpdating(block.data)
-        break
-      }
-    } else {
-      block = remoteDataLoading()
-    }
+  if (state.chain.type === RemoteDataType.Success) {
+    const blockData = getBlockData(state, action.blockNum)
     return {
       ...state,
-      server: {
-        ...state.server,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
         blocks: {
-          ...state.server.blocks,
-          [action.blockNum]: block,
+          ...state.chain.data.blocks,
+          [action.blockNum]: remoteDataLoading(blockData),
         },
-      },
+      }),
     }
   } else {
     return state
   }
 }
 
-function onFetchedBlock(
+function onGetBlockResponse(
   state: Readonly<State>,
-  action: Readonly<FetchedBlock>,
+  action: Readonly<GetBlockResponse>,
 ): Readonly<State> {
-  if (state.server.status === RpcServerStatus.ValidUrl) {
+  if (state.chain.type === RemoteDataType.Success) {
     return {
       ...state,
-      server: {
-        ...state.server,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
         blocks: {
-          ...state.server.blocks,
+          ...state.chain.data.blocks,
           [action.blockNum]: action.block,
         },
-      },
+      }),
     }
   } else {
     return state

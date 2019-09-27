@@ -1,0 +1,32 @@
+import React from 'react'
+import { useSelector } from 'react-redux'
+import * as store from '../store'
+import {
+  ChainStatus,
+  RemoteData,
+  RawInfo,
+  RemoteDataOk,
+  RemoteDataStatus,
+  RemoteDataUpdating,
+} from '../store'
+import Block from './Block'
+
+const ChainInfoOk: React.FC<{
+  readonly info: RemoteDataOk<RawInfo> | RemoteDataUpdating<RawInfo>;
+}> = (props) => {
+  return <div>Chain id: {props.info.data.chain_id}</div>
+}
+
+const ChainInfo: React.FC<{
+  readonly info: RemoteData<RawInfo>;
+}> = (props) => {
+  switch (props.info.status) {
+  case RemoteDataStatus.Success:
+  case RemoteDataStatus.Updating:
+    return <ChainInfoOk info={props.info} />
+  default:
+    return <div>Balls</div>
+  }
+}
+
+export default ChainInfo

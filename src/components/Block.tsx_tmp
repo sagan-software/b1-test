@@ -11,7 +11,9 @@ import {
 } from '../store'
 
 const BlockOk: React.FC<{
-  readonly block: RemoteDataOk<store.Block> | RemoteDataUpdating<store.Block>;
+  readonly block:
+    | RemoteDataOk<store.RawBlock>
+    | RemoteDataUpdating<store.RawBlock>;
 }> = (props) => {
   const data = props.block.data
   const numActions = data.transactions.reduce((sum: number, { trx }) => {
@@ -40,7 +42,7 @@ const Block: React.FC<{
   const dispatch = useDispatch<typeof store.store.dispatch>()
   if (block && block.status !== RemoteDataStatus.Default) {
     switch (block.status) {
-    case RemoteDataStatus.Ok:
+    case RemoteDataStatus.Success:
       return <BlockOk block={block} />
     default:
       return <div>Lodaing</div>

@@ -2,9 +2,9 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import * as store from '../store'
 import {
-  RpcServerStatus,
+  ChainStatus,
   RemoteData,
-  Info,
+  RawInfo,
   RemoteDataOk,
   RemoteDataStatus,
   RemoteDataUpdating,
@@ -12,7 +12,7 @@ import {
 import Block from './Block'
 
 const ChainInfoOk: React.FC<{
-  readonly info: RemoteDataOk<Info> | RemoteDataUpdating<Info>;
+  readonly info: RemoteDataOk<RawInfo> | RemoteDataUpdating<RawInfo>;
 }> = (props) => {
   return (
     <div>
@@ -32,10 +32,10 @@ const ChainInfoOk: React.FC<{
 }
 
 const ChainInfo: React.FC<{
-  readonly info: RemoteData<Info>;
+  readonly info: RemoteData<RawInfo>;
 }> = (props) => {
   switch (props.info.status) {
-  case RemoteDataStatus.Ok:
+  case RemoteDataStatus.Success:
   case RemoteDataStatus.Updating:
     return <ChainInfoOk info={props.info} />
   default:
@@ -44,13 +44,13 @@ const ChainInfo: React.FC<{
 }
 
 const ChainValidUrl: React.FC<{
-  readonly chain: Readonly<store.RpcServerValidUrl>;
+  readonly chain: Readonly<store.ChainOk>;
 }> = (props) => {
   return <ChainInfo info={props.chain.info} />
 }
 
 const ChainInvalidUrl: React.FC<{
-  readonly chain: Readonly<store.RpcServerInvalidUrl>;
+  readonly chain: Readonly<store.ChainError>;
 }> = (props) => {
   return <div>Invalid chain</div>
 }
@@ -58,9 +58,9 @@ const ChainInvalidUrl: React.FC<{
 const Chain: React.FC = () => {
   const chain = useSelector(store.getChain)
   switch (chain.status) {
-  case RpcServerStatus.ValidUrl:
+  case ChainStatus.ValidUrl:
     return <ChainValidUrl chain={chain} />
-  case RpcServerStatus.InvalidUrl:
+  case ChainStatus.InvalidUrl:
     return <ChainInvalidUrl chain={chain} />
   }
 }
