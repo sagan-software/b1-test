@@ -1,21 +1,21 @@
 import { Store, createStore, applyMiddleware } from 'redux'
-import * as reactRedux from 'react-redux'
 import createSagaMiddleware from 'redux-saga'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { Action } from '../actions'
-import { State } from '../state'
-import { reducer } from './reducer'
-import { saga } from './sagas'
+import * as action from './rootAction'
+import * as constants from './rootConstants'
+import * as reducer from './rootReducer'
+import * as selectors from './rootSelectors'
+import * as state from './rootState'
+// import { saga } from './sagas'
 
-export const store: Store<State, Action> = (() => {
+export const store: Store<state.RootState, action.RootAction> = (() => {
   const sagaMiddleware = createSagaMiddleware()
-  const s = createStore<State, Action, {}, {}>(
-    reducer,
+  const innerStore = createStore(
+    reducer.rootReducer,
     composeWithDevTools({ name: 'b1-test' })(applyMiddleware(sagaMiddleware)),
   )
-  sagaMiddleware.run(saga)
-  return s
+  // sagaMiddleware.run(saga)
+  return innerStore
 })()
 
-export const useDispatch = () =>
-  reactRedux.useDispatch<typeof store.dispatch>()
+export { action, constants, selectors, state }

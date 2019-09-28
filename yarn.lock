@@ -1019,6 +1019,11 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
+"@korzio/djv-draft-04@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@korzio/djv-draft-04/-/djv-draft-04-2.0.1.tgz#2984289426cac5ed622b26a58c3af8584aefbdfe"
+  integrity sha512-MeTVcNsfCIYxK6T7jW1sroC7dBAb4IfLmQe6RoCqlxHN5NFkzNpgdnBPR+/0D2wJDUJHM9s9NQv+ouhxKjvUjg==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -1211,6 +1216,11 @@
   integrity sha512-CeBpmX1J8kWLcDEnI3Cl2Eo6RfbGvzUctA+CjZUhOKDFbLfcr7fc4usEqLNWetrlJd7RhAkyYe2czXop4fICpw==
   dependencies:
     "@babel/types" "^7.3.0"
+
+"@types/djv@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/djv/-/djv-2.1.0.tgz#21bebb9a8704fdc60ca1212aaabc1b024a8c9a1c"
+  integrity sha512-ni4Wubp7rk3Zj/CJNEwYXjajggCccEeNKcb3vJVRPRElvXscigAfucP9lIinbynYPNYadQZ/ZGhHUR77R9oWwg==
 
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
@@ -3382,6 +3392,13 @@ dir-glob@2.0.0:
   dependencies:
     arrify "^1.0.1"
     path-type "^3.0.0"
+
+djv@^2.1.3-alpha.0:
+  version "2.1.3-alpha.0"
+  resolved "https://registry.yarnpkg.com/djv/-/djv-2.1.3-alpha.0.tgz#554daa91f22e0e8e9f48c9550766a6c07e8ce180"
+  integrity sha512-vrKAFr/wbhMjfqo+eoXZRIx/6YbN1DSZlxUsE3tHDPYB0zWRtOBhqmKbcgCjfP3+KevqidBGn2jNRnqRhjIzYg==
+  optionalDependencies:
+    "@korzio/djv-draft-04" "^2.0.1"
 
 dns-equal@^1.0.0:
   version "1.0.0"
