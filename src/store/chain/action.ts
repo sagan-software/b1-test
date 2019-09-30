@@ -1,22 +1,24 @@
-import { RpcData, AccountName, Info, Block } from '../../api'
+import { Result } from '../../coreTypes'
+import { RpcData, RpcError, AccountName, Info, Block } from '../../api'
 import { Chain } from './state'
 
 export type ChainAction =
+  | SetChain
   | GetInfo
-  | GotInfo
+  | SetInfo
   | GetBlock
-  | GotBlock
+  | SetBlock
   | GetAbi
-  | GotAbi
+  | SetAbi
 
 export enum ChainActionType {
   SetChain = 'CHAIN/SET_CHAIN',
   GetAbi = 'CHAIN/GET_ABI',
-  GotAbi = 'CHAIN/GOT_ABI',
+  SetAbi = 'CHAIN/SET_ABI',
   GetBlock = 'CHAIN/GET_BLOCK',
-  GotBlock = 'CHAIN/GOT_BLOCK',
+  SetBlock = 'CHAIN/SET_BLOCK',
   GetInfo = 'CHAIN/GET_INFO',
-  GotInfo = 'CHAIN/GOT_INFO',
+  SetInfo = 'CHAIN/SET_INFO',
 }
 
 export interface SetChain {
@@ -28,9 +30,9 @@ export interface GetInfo {
   readonly type: ChainActionType.GetInfo
 }
 
-export interface GotInfo {
-  readonly type: ChainActionType.GotInfo
-  readonly info: Readonly<RpcData<Info>>
+export interface SetInfo {
+  readonly type: ChainActionType.SetInfo
+  readonly info: Readonly<Result<Info, RpcError>>
 }
 
 export interface GetBlock {
@@ -38,8 +40,8 @@ export interface GetBlock {
   readonly blockNum: number
 }
 
-export interface GotBlock {
-  readonly type: ChainActionType.GotBlock
+export interface SetBlock {
+  readonly type: ChainActionType.SetBlock
   readonly blockNum: number
   readonly block: Readonly<RpcData<Block>>
 }
@@ -49,17 +51,22 @@ export interface GetAbi {
   readonly account: AccountName
 }
 
-export interface GotAbi {
-  readonly type: ChainActionType.GotAbi
+export interface SetAbi {
+  readonly type: ChainActionType.SetAbi
   readonly account: AccountName
 }
+
+export const setChain = (chain: Chain): Readonly<SetChain> => ({
+  type: ChainActionType.SetChain,
+  chain,
+})
 
 export const getInfo = (): Readonly<GetInfo> => ({
   type: ChainActionType.GetInfo,
 })
 
-export const gotInfo = (info: Readonly<RpcData<Info>>): Readonly<GotInfo> => ({
-  type: ChainActionType.GotInfo,
+export const setInfo = (info: Readonly<RpcData<Info>>): Readonly<SetInfo> => ({
+  type: ChainActionType.SetInfo,
   info,
 })
 
@@ -71,8 +78,8 @@ export const getBlock = (blockNum: Readonly<number>): Readonly<GetBlock> => ({
 export const gotBlock = (
   blockNum: Readonly<number>,
   block: Readonly<RpcData<Block>>,
-): Readonly<GotBlock> => ({
-  type: ChainActionType.GotBlock,
+): Readonly<SetBlock> => ({
+  type: ChainActionType.SetBlock,
   blockNum,
   block,
 })

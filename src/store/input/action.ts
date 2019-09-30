@@ -1,7 +1,7 @@
 export type InputAction = SetUrl | SetAutoplay | SetMaxBlockCount
 
 export enum InputActionType {
-  SetUrl = 'INPUT/URL_INPUT',
+  SetUrl = 'INPUT/SET_URL',
   SetAutoplay = 'INPUT/SET_AUTOPLAY',
   SetMaxBlockCount = 'INPUT/SET_MAX_BLOCK_COUNT',
 }

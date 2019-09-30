@@ -1,8 +1,8 @@
-import { RpcData, Info, Block } from '../../api'
+import { RpcResult, Info, Block } from '../../api'
 import { getData } from '../../coreTypes'
 import { RootState } from '../rootState'
 import { chainPresets } from './constants'
-import { Chain, ChainOk, ChainPreset } from './state'
+import { Chain, ChainPreset } from './state'
 
 export function getChain(state: Readonly<RootState>): Readonly<Chain> {
   return state.chain
@@ -16,7 +16,7 @@ export function getChainData(
 
 export function getInfo(
   state: Readonly<RootState>,
-): Readonly<RpcData<Info>> | void {
+): Readonly<RpcResult<Info>> | void {
   const chain = getChainData(state)
   if (chain) {
     return chain.info
@@ -33,7 +33,7 @@ export function getInfoData(state: Readonly<RootState>): Readonly<Info> | void {
 export function getBlock(
   state: Readonly<RootState>,
   blockNum: Readonly<number>,
-): Readonly<RpcData<Block>> | void {
+): Readonly<RpcResult<Block>> | void {
   const chain = getChainData(state)
   if (chain) {
     return chain.blocks[blockNum]

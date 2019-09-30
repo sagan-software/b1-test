@@ -1,15 +1,15 @@
+import { take, takeLatest, put } from 'redux-saga/effects'
+import { select, call } from 'typed-redux-saga'
+import * as api from '../../api'
 import {
-  actionChannel,
-  put,
-  delay,
-  fork,
-  takeEvery,
-  takeLatest,
-  call,
-  select,
-} from 'redux-saga/effects'
-import { take } from '../sagaEffects'
-import { ChainActionType } from './action'
+  remoteDataLoading,
+  remoteDataSuccess,
+  ResultType,
+  resultToRemoteData,
+} from '../../coreTypes'
+import { getUrlInput } from '../rootSelectors'
+import { InputActionType } from '../input/action'
+import { setChain, ChainActionType, GetInfo } from './action'
 // import {
 //   getUrl,
 //   getHasBlock,
@@ -22,9 +22,9 @@ import { ChainActionType } from './action'
 //   RawBlock,
 // } from '../state'
 
-export function* saga() {
-  // yield takeLatest(ActionType.UrlInput, onSetUrl)
-  // yield takeLatest(ActionType.FetchInfo, onFetchInfo)
+export function* chainSaga() {
+  yield takeLatest(InputActionType.SetUrl, onSetUrl)
+  yield takeLatest(ChainActionType.GetInfo, onGetInfo)
   // yield takeLatest(ActionType.FetchedInfo, onFetchedInfo)
   // yield fork(fetchBlocks)
   //   yield takeEvery(ActionType.FetchedBlock, onFetchedBlock)
@@ -39,28 +39,43 @@ export function* saga() {
 //   }
 // }
 
-// function* onSetUrl() {
-//   const url: ReturnType<typeof getUrl> = yield select(getUrl)
-//   if (url) {
-//     yield put(fetchInfo())
-//   }
-// }
+function* onSetUrl() {
+  const url = yield* select(getUrlInput)
+  if (url) {
+    yield* checkChain(url)
+  }
+}
 
-// function* onFetchInfo(_action: FetchInfo) {
-//   const url: ReturnType<typeof getUrl> = yield select(getUrl)
-//   if (url) {
-//     const infoUrl = new URL('/v1/chain/get_info', url)
-//     let data: RemoteData<RawInfo>
-//     try {
-//       const res: Response = yield call(fetch, infoUrl.toString())
-//       const info: RawInfo = yield call(res.json.bind(res))
-//       data = remoteDataOk(info)
-//     } catch (e) {
-//       data = remoteDataError('bad response')
-//     }
-//     yield put(fetchedInfo(data))
-//   }
-// }
+function* checkChain(urlInput: string) {
+  const url = new URL(`https://${urlInput}`)
+  yield put(setChain(remoteDataLoading()))
+  const info = yield* call(api.getInfo, url)
+  yield put(
+    setChain(
+      remoteDataSuccess({
+        url,
+        info: resultToRemoteData(info),
+        blocks: {},
+      }),
+    ),
+  )
+}
+
+function* onGetInfo(_action: GetInfo) {
+  //   const url: ReturnType<typeof getUrl> = yield select(getUrl)
+  //   if (url) {
+  //     const infoUrl = new URL('/v1/chain/get_info', url)
+  //     let data: RemoteData<RawInfo>
+  //     try {
+  //       const res: Response = yield call(fetch, infoUrl.toString())
+  //       const info: RawInfo = yield call(res.json.bind(res))
+  //       data = remoteDataOk(info)
+  //     } catch (e) {
+  //       data = remoteDataError('bad response')
+  //     }
+  //     yield put(fetchedInfo(data))
+  //   }
+}
 
 // function* onFetchedInfo(action: FetchedInfo) {
 //   if (action.info.status === RemoteDataStatus.Success) {

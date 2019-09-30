@@ -7,7 +7,7 @@ export const lightTheme: Readonly<Theme> = {
 }
 
 export const darkTheme: Readonly<Theme> = {
-  bgColor: '#333',
+  bgColor: '#1f1b24',
   textColor: '#fff',
   linkColor: 'blue',
 }

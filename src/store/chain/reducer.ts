@@ -8,9 +8,9 @@ import {
   ChainAction,
   ChainActionType,
   GetInfo,
-  GotInfo,
+  SetInfo,
   GetBlock,
-  GotBlock,
+  SetBlock,
 } from './action'
 import { defaultChain } from './constants'
 import { Chain } from './state'
@@ -20,16 +20,18 @@ export function chainReducer(
   action: Readonly<ChainAction>,
 ): Readonly<Chain> {
   switch (action.type) {
+  case ChainActionType.SetChain:
+    return action.chain
   case ChainActionType.GetInfo:
     return onGetInfo(chain, action)
-  case ChainActionType.GotInfo:
-    return onGotInfo(chain, action)
+  case ChainActionType.SetInfo:
+    return onSetInfo(chain, action)
   case ChainActionType.GetBlock:
     return onGetBlock(chain, action)
-  case ChainActionType.GotBlock:
-    return onGotBlock(chain, action)
+  case ChainActionType.SetBlock:
+    return onSetBlock(chain, action)
   case ChainActionType.GetAbi:
-  case ChainActionType.GotAbi:
+  case ChainActionType.SetAbi:
   default:
     return chain
   }
@@ -39,20 +41,22 @@ function onGetInfo(
   chain: Readonly<Chain>,
   action: Readonly<GetInfo>,
 ): Readonly<Chain> {
-  if (chain.type === RemoteDataType.Success) {
-    return remoteDataSuccess({
-      ...chain.data,
-      info: remoteDataLoading(getData(chain.data.info)),
-    })
-  } else {
-    return chain
+  return {
+    ...chain,
+    info: remoteDataLoading(chain.info)
   }
 }
 
-function onGotInfo(
+function onSetInfo(
   chain: Readonly<Chain>,
-  action: Readonly<GotInfo>,
+  action: Readonly<SetInfo>,
 ): Readonly<Chain> {
+  switch (action.info.type) {
+    case RemoteDataType.Success:
+      return remoteDataSuccess({
+        ...
+      })
+  }
   if (chain.type === RemoteDataType.Success) {
     return remoteDataSuccess({
       ...chain.data,
@@ -82,9 +86,9 @@ function onGetBlock(
   }
 }
 
-function onGotBlock(
+function onSetBlock(
   chain: Readonly<Chain>,
-  action: Readonly<GotBlock>,
+  action: Readonly<SetBlock>,
 ): Readonly<Chain> {
   if (chain.type === RemoteDataType.Success) {
     return remoteDataSuccess({

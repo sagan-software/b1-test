@@ -97,11 +97,11 @@ export const defaultRemoteData: Readonly<RemoteDataDefault> = {
 }
 
 /** Creates remote data a loading state */
-export const remoteDataLoading = <T>(
-  previousData?: Readonly<T> | void,
-): Readonly<RemoteDataLoading<T>> => ({
+export const remoteDataLoading = <T, E>(
+  previousData?: RemoteData<T, E> | void,
+): Readonly<RemoteData<T, E>> => ({
   type: RemoteDataType.Loading,
-  previousData,
+  previousData: previousData ? getData(previousData) : undefined,
 })
 
 /** Creates remote data a successful state */
@@ -115,9 +115,20 @@ export const remoteDataSuccess = <T>(
 /** Creates remote data a failed state */
 export const remoteDataFailure = <T, E>(
   error: Readonly<E>,
-  previousData?: Readonly<T> | void,
-): Readonly<RemoteDataFailure<T, E>> => ({
+  previousData?: RemoteData<T, E> | void,
+): Readonly<RemoteData<T, E>> => ({
   type: RemoteDataType.Failure,
   error,
-  previousData,
+  previousData: previousData ? getData(previousData) : undefined,
 })
+
+export function resultToRemoteData<T, E>(
+  result: Result<T, E>,
+): RemoteData<T, E> {
+  switch (result.type) {
+  case ResultType.Ok:
+    return remoteDataSuccess(result.data)
+  case ResultType.Err:
+    return remoteDataFailure(result.error)
+  }
+}
