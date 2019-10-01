@@ -1,8 +1,6 @@
 import React from 'react'
-import { state } from '../../store'
+import * as store from '../../store'
 
-export const ChainErr: React.FC<{
-  error: state.ChainError;
-}> = () => {
+export const ChainErr: React.FC<{}> = () => {
   return <>ChainErr</>
 }

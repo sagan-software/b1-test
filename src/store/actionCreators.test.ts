@@ -1,9 +1,11 @@
-import { getInfo, getBlock, ChainActionType } from './action'
+import { ActionType } from './action'
+import { getInfoAction, getBlockAction } from './actionCreators'
 
 describe('chain action creators', () => {
+  const url = new URL('https://api.eosnewyork.io')
   it('can create a GetInfo action', () => {
-    expect(getInfo()).toEqual({
-      type: ChainActionType.GetInfo,
+    expect(getInfoAction(url)).toEqual({
+      type: ActionType.GetInfo,
     })
   })
 
@@ -12,8 +14,8 @@ describe('chain action creators', () => {
   })
 
   it('can create a GetBlock action', () => {
-    expect(getBlock(1)).toEqual({
-      type: ChainActionType.GetBlock,
+    expect(getBlockAction(url, 1)).toEqual({
+      type: ActionType.GetBlock,
       blockNum: 1,
     })
   })

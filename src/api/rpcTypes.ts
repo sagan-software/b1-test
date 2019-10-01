@@ -20,32 +20,35 @@ export type ActionName = Opaque<'ActionName', string>
 
 export type RpcResult<T> = Result<T, RpcError>
 
-export type RpcError =
-  | RpcErrorNoCors
-  | RpcErrorBadStatus
-  | RpcErrorInvalidJson
-  | RpcErrorUnexpectedData
+export interface RawError {
+  readonly code: number
+  readonly error: Readonly<{
+    readonly code: number;
+    readonly details: ReadonlyArray<{
+      readonly file: Readonly<string>;
+      readonly line_number: Readonly<number>;
+      readonly message: Readonly<string>;
+      readonly method: Readonly<string>;
+    }>;
+    readonly name: Readonly<string>;
+    readonly what: Readonly<string>;
+  }>
+  readonly message: Readonly<string>
+}
+
+export function isRawError(data: any): data is RawError {
+  // TODO test against json schema
+  return data && typeof data === 'object' && 'code' in data && 'error' in data
+}
+
+export interface RpcError {
+  type: RpcErrorType
+  raw?: RawError
+}
 
 export enum RpcErrorType {
   NoCors = 'NO_CORS',
   BadStatus = 'BAD_STATUS',
   InvalidJson = 'INVALID_JSON',
   UnexpectedData = 'UNEXPECTED_DATA',
-}
-
-export interface RpcErrorNoCors {
-  readonly type: RpcErrorType.NoCors
-}
-
-export interface RpcErrorBadStatus {
-  readonly type: RpcErrorType.BadStatus
-  readonly status: number
-}
-
-export interface RpcErrorInvalidJson {
-  readonly type: RpcErrorType.InvalidJson
-}
-
-export interface RpcErrorUnexpectedData {
-  readonly type: RpcErrorType.UnexpectedData
 }

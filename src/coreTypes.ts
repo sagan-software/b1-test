@@ -35,11 +35,11 @@ export const resultErr = <E>(error: E): ResultErr<E> => ({
  * Represents fallible data fetched from a remote resource.
  * @see {@link http://blog.jenkster.com/2016/06/how-elm-slays-a-ui-antipattern.html}
  */
-export type RemoteData<T, E> =
+export type RemoteData<S, E, L = S> =
   | RemoteDataDefault
-  | RemoteDataLoading<T>
-  | RemoteDataSuccess<T>
-  | RemoteDataFailure<T, E>
+  | RemoteDataSuccess<S>
+  | RemoteDataFailure<E>
+  | RemoteDataLoading<L>
 
 /** Remote data union type tag */
 export enum RemoteDataType {
@@ -56,70 +56,67 @@ export interface RemoteDataDefault {
 }
 
 /** Represents the loading state of remote data */
-export interface RemoteDataLoading<T> {
+export interface RemoteDataLoading<L> {
   /** Union type tag */
   readonly type: RemoteDataType.Loading
   /** Optional previously loaded data */
-  readonly previousData: Readonly<T> | void
+  readonly data?: Readonly<L> | void
 }
 
 /** Represents the successful state of remote data */
-export interface RemoteDataSuccess<T> {
+export interface RemoteDataSuccess<S> {
   /** Union type tag */
   readonly type: RemoteDataType.Success
   /** Data that was successfully loaded */
-  readonly data: Readonly<T>
+  readonly data: Readonly<S>
 }
 
 /** Represents the failed state of remote data */
-export interface RemoteDataFailure<T, E> {
+export interface RemoteDataFailure<E> {
   /** Union type tag */
   readonly type: RemoteDataType.Failure
   /** Failure type */
-  readonly error: Readonly<E>
-  /** Optional previously loaded data */
-  readonly previousData: Readonly<T> | void
+  readonly data: Readonly<E>
 }
 
-export function getData<T, E>(remoteData: RemoteData<T, E>): T | void {
+export function getData<S, E, L>(
+  remoteData: RemoteData<S, E, L>,
+): S | L | E | void {
   switch (remoteData.type) {
   case RemoteDataType.Success:
-    return remoteData.data
   case RemoteDataType.Loading:
   case RemoteDataType.Failure:
-    return remoteData.previousData
+    return remoteData.data
   }
 }
 
 /** Default remote data state */
-export const defaultRemoteData: Readonly<RemoteDataDefault> = {
+export const remoteDataDefault: Readonly<RemoteDataDefault> = {
   type: RemoteDataType.Default,
 }
 
 /** Creates remote data a loading state */
-export const remoteDataLoading = <T, E>(
-  previousData?: RemoteData<T, E> | void,
-): Readonly<RemoteData<T, E>> => ({
+export const remoteDataLoading = <L, E>(
+  data?: L | void,
+): Readonly<RemoteDataLoading<L>> => ({
   type: RemoteDataType.Loading,
-  previousData: previousData ? getData(previousData) : undefined,
+  data,
 })
 
 /** Creates remote data a successful state */
-export const remoteDataSuccess = <T>(
-  data: Readonly<T>,
-): Readonly<RemoteDataSuccess<T>> => ({
+export const remoteDataSuccess = <S>(
+  data: Readonly<S>,
+): Readonly<RemoteDataSuccess<S>> => ({
   type: RemoteDataType.Success,
   data,
 })
 
 /** Creates remote data a failed state */
-export const remoteDataFailure = <T, E>(
-  error: Readonly<E>,
-  previousData?: RemoteData<T, E> | void,
-): Readonly<RemoteData<T, E>> => ({
+export const remoteDataFailure = <E>(
+  data: Readonly<E>,
+): Readonly<RemoteDataFailure<E>> => ({
   type: RemoteDataType.Failure,
-  error,
-  previousData: previousData ? getData(previousData) : undefined,
+  data,
 })
 
 export function resultToRemoteData<T, E>(

@@ -1,11 +1,22 @@
+import { resultOk, resultErr } from '../coreTypes'
 import {
   BlockId,
   BlockNum,
   AccountName,
   TransactionId,
   ActionName,
+  RpcErrorType,
+  RpcResult,
+  RawError,
 } from './rpcTypes'
-import { Transaction, RawTransaction } from './getTransaction'
+import {
+  Transaction,
+  RawTransaction,
+  TransactionType,
+  isDeferred,
+  convertRawTransaction,
+  getNumActionsInTransaction,
+} from './getTransaction'
 // import { addJsonSchema, validateJsonSchema } from './jsonSchema'
 
 /** Partial raw data returned from `/v1/chain/get_block` endpoint */
@@ -44,3 +55,55 @@ export interface Block {
 //   },
 //   required: ['id', 'block_num', 'producer', 'timestamp'],
 // })
+
+export async function getBlock(
+  serverUrl: Readonly<URL>,
+  blockNum: Readonly<BlockNum>,
+): Promise<RpcResult<Block>> {
+  const url = new URL('/v1/chain/get_block', serverUrl)
+  // TODO abort controllers
+  // TODO make a HEAD call to check for CORS headers
+
+  let res: Response
+  try {
+    res = await fetch(url.toString(), {
+      method: 'POST',
+      body: JSON.stringify({
+        block_num_or_id: blockNum,
+      }),
+    })
+  } catch (e) {
+    return resultErr({ type: RpcErrorType.BadStatus, status: 0 }) // TODO this is wrong
+  }
+
+  let json: any
+  try {
+    json = await res.json()
+  } catch (e) {
+    return resultErr({ type: RpcErrorType.InvalidJson })
+  }
+
+  // TODO validate json schema
+  const raw = json as RawBlock
+
+  try {
+    return resultOk({
+      id: raw.id,
+      blockNum: raw.block_num,
+      producer: raw.producer,
+      transactions: raw.transactions.map(convertRawTransaction),
+    })
+  } catch (e) {
+    // TODO do this better
+    return resultErr({
+      type: RpcErrorType.UnexpectedData,
+      error: json as RawError,
+    })
+  }
+}
+
+export function getNumActionsInBlock(block: Block): number {
+  return block.transactions.reduce((sum: number, transaction) => {
+    return sum + getNumActionsInTransaction(transaction)
+  }, 0)
+}

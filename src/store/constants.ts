@@ -1,8 +1,6 @@
-import { ChainId } from '../../api'
-import { defaultRemoteData } from '../../coreTypes'
-import { Chain, ChainPreset, ChainEnv } from './state'
-
-export const defaultChain: Readonly<Chain> = defaultRemoteData
+import { ChainId } from '../api'
+import { remoteDataDefault } from '../coreTypes'
+import { State, ChainPreset, ChainEnv, Theme } from './state'
 
 export const eosMainnet: Readonly<ChainPreset> = {
   id: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906' as ChainId,
@@ -102,3 +100,31 @@ export const chainPresets: ReadonlyArray<ChainPreset> = [
   bosTestnet,
   meetoneTestnet,
 ]
+
+export const mainnets: ReadonlyArray<ChainPreset> = chainPresets.filter(
+  (preset) => preset.env === ChainEnv.Mainnet,
+)
+
+export const testnets: ReadonlyArray<ChainPreset> = chainPresets.filter(
+  (preset) => preset.env === ChainEnv.Testnet,
+)
+
+export const lightTheme: Readonly<Theme> = {
+  bgColor: '#ffffff',
+  textColor: '#333333',
+  linkColor: 'red',
+}
+
+export const darkTheme: Readonly<Theme> = {
+  bgColor: '#1f1b24',
+  textColor: '#fff',
+  linkColor: 'blue',
+}
+
+export const defaultTheme: Readonly<Theme> = darkTheme
+
+export const defaultState: Readonly<State> = {
+  rpcHostnameInput: undefined,
+  chain: remoteDataDefault,
+  theme: defaultTheme,
+}

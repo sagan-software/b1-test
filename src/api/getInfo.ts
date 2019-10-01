@@ -1,5 +1,5 @@
-import { Result, resultOk, resultErr } from '../coreTypes'
-import { ChainId, BlockNum, RpcError } from './rpcTypes'
+import { resultOk, resultErr } from '../coreTypes'
+import { RpcResult, ChainId, BlockNum, RpcErrorType } from './rpcTypes'
 
 /** Partial raw data returned from `/v1/chain/get_info` endpoint */
 export interface RawInfo {
@@ -21,7 +21,7 @@ export interface Info {
   readonly lastIrreversibleBlockNum: BlockNum
 }
 
-export async function getInfo(serverUrl: URL): Promise<Result<Info, RpcError>> {
+export async function getInfo(serverUrl: URL): Promise<RpcResult<Info>> {
   const url = new URL('/v1/chain/get_info', serverUrl)
 
   // TODO abort controllers
@@ -31,14 +31,14 @@ export async function getInfo(serverUrl: URL): Promise<Result<Info, RpcError>> {
   try {
     res = await fetch(url.toString())
   } catch (e) {
-    return resultErr(RpcError.BadStatus) // TODO this is wrong
+    return resultErr({ type: RpcErrorType.BadStatus, status: 0 }) // TODO this is wrong
   }
 
   let json: any
   try {
     json = await res.json()
   } catch (e) {
-    return resultErr(RpcError.InvalidJson)
+    return resultErr({ type: RpcErrorType.InvalidJson })
   }
 
   // TODO validate json schema

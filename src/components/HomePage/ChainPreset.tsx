@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { state } from '../../store'
+import * as store from '../../store'
 import { Link, chain } from '../Router'
 import { TruncatedText } from '../TruncatedText'
 
@@ -29,7 +29,7 @@ const Id = styled(TruncatedText)`
 `
 
 export const ChainPreset: React.FC<{
-  readonly preset: Readonly<state.ChainPreset>;
+  readonly preset: Readonly<store.ChainPreset>;
 }> = ({ preset }) => {
   return (
     <Wrapper to={chain(preset.defaultHostname)}>

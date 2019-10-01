@@ -37,7 +37,11 @@ export interface DeferredTransaction {
 
 /** Partial raw transaction data returned from `/v1/chain/get_block` endpoint */
 export interface RawTransaction {
-  readonly trx: TransactionId | Readonly<RawTransactionInner>
+  readonly trx: TransactionId | Readonly<RawTrx>
+}
+
+export interface RawTrx {
+  readonly transaction: RawTransactionInner
 }
 
 /** Partial raw inner transaction data returned from `/v1/chain/get_block` endpoint */
@@ -54,4 +58,39 @@ export interface RawAction {
   readonly account: AccountName
   /** Smart contract action name */
   readonly name: ActionName
+}
+
+export function isDeferred(
+  trx: TransactionId | Readonly<RawTrx>,
+): trx is TransactionId {
+  return typeof trx === 'string' || trx instanceof String
+}
+
+export function convertRawTransaction({ trx }: RawTransaction): Transaction {
+  if (isDeferred(trx)) {
+    return {
+      type: TransactionType.Deferred,
+      id: trx,
+    }
+  } else {
+    return {
+      type: TransactionType.Standard,
+      contextFreeActions: trx.transaction.context_free_actions.map((action) => ({
+        account: action.account,
+        name: action.name,
+      })),
+      actions: trx.transaction.actions.map((action) => ({
+        account: action.account,
+        name: action.name,
+      })),
+    }
+  }
+}
+
+export function getNumActionsInTransaction(transaction: Transaction): number {
+  if (transaction.type === TransactionType.Standard) {
+    return transaction.contextFreeActions.length + transaction.actions.length
+  } else {
+    return 0
+  }
 }

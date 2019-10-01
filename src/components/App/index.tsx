@@ -1,7 +1,7 @@
 import React from 'react'
 import { ThemeProvider } from 'styled-components'
-import { Provider, useSelector } from 'react-redux'
-import { store, selectors } from '../../store'
+import { Provider } from 'react-redux'
+import { store, useSelector, getTheme } from '../../store'
 import { BlockPage } from '../BlockPage'
 import { ChainPage } from '../ChainPage'
 import { HomePage } from '../HomePage'
@@ -10,7 +10,7 @@ import { Router, Switch, Route, RouteType, getRouteTemplate } from '../Router'
 import { GlobalStyles } from './GlobalStyles'
 
 const AppWithTheme: React.FC = () => {
-  const theme = useSelector(selectors.getTheme)
+  const theme = useSelector(getTheme)
   return (
     <ThemeProvider theme={theme}>
       <>
