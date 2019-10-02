@@ -113,18 +113,23 @@ export const lightTheme: Readonly<Theme> = {
   bgColor: '#ffffff',
   textColor: '#333333',
   linkColor: 'red',
+  x: 10,
+  y: 10,
 }
 
 export const darkTheme: Readonly<Theme> = {
   bgColor: '#1f1b24',
   textColor: '#fff',
   linkColor: 'blue',
+  x: 10,
+  y: 10,
 }
 
-export const defaultTheme: Readonly<Theme> = darkTheme
+export const defaultTheme: Readonly<Theme> = lightTheme
 
 export const defaultState: Readonly<State> = {
-  rpcHostnameInput: undefined,
+  rpcHostnameInput: '',
+  autoplay: true,
   chain: remoteDataDefault,
   theme: defaultTheme,
 }

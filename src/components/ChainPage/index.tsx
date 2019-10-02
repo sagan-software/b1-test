@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react'
 import { RouteComponentProps } from 'react-router'
-import useInterval from '@use-it/interval'
 import * as store from '../../store'
-import { ChainErr } from './ChainErr'
-import { ChainLoading } from './ChainLoading'
-import { ChainOk } from './ChainOk'
+import { ChainFailurePage } from './ChainFailurePage'
+import { ChainLoadingPage } from './ChainLoadingPage'
+import { ChainSuccessPage } from './ChainSuccessPage'
 import { RemoteDataType } from '../../coreTypes'
 
 export const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
@@ -15,18 +14,17 @@ export const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
   const dispatch = store.useDispatch()
   useEffect(() => {
     if (hostname !== previousHostname) {
-      dispatch(store.initChainAction(hostname))
+      dispatch(store.getInfoAction(hostname))
     }
   }, [dispatch, hostname])
   const chain = store.useSelector(store.getChain)
-  const preset = store.useSelector(store.getChainPreset)
   switch (chain.type) {
   case RemoteDataType.Success:
-    return <ChainOk chain={chain.data} />
+    return <ChainSuccessPage chain={chain.data} />
   case RemoteDataType.Failure:
-    return <ChainErr />
+    return <ChainFailurePage />
   case RemoteDataType.Loading:
   case RemoteDataType.Default:
-    return <ChainLoading />
+    return <ChainLoadingPage />
   }
 }

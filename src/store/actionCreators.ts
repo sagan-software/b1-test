@@ -1,23 +1,16 @@
 import { RpcResult, Info, Block, ChainId, BlockNum } from '../api'
 import {
   ActionType,
-  InitChainAction,
   IncrementHeadBlockNumAction,
   GetInfoAction,
   SetInfoAction,
   GetBlockAction,
   SetBlockAction,
   DelBlockAction,
+  SetAutoplayAction,
+  SetThemeAction,
 } from './action'
-
-export const initChainAction = (
-  hostname: string,
-  chainId?: ChainId | void,
-): Readonly<InitChainAction> => ({
-  type: ActionType.InitChain,
-  hostname,
-  chainId,
-})
+import { Theme } from './state'
 
 export const incrementBlockNumAction = (): Readonly<
   IncrementHeadBlockNumAction
@@ -25,8 +18,20 @@ export const incrementBlockNumAction = (): Readonly<
   type: ActionType.IncrementHeadBlockNum,
 })
 
-export const getInfoAction = (): Readonly<GetInfoAction> => ({
+export const setAutoplayAction = (
+  autoplay: boolean,
+): Readonly<SetAutoplayAction> => ({
+  type: ActionType.SetAutoplay,
+  autoplay,
+})
+
+export const getInfoAction = (
+  hostname: string,
+  chainId?: ChainId | void,
+): Readonly<GetInfoAction> => ({
   type: ActionType.GetInfo,
+  hostname,
+  chainId,
 })
 
 export const setInfoAction = (
@@ -57,4 +62,11 @@ export const delBlockAction = (
 ): Readonly<DelBlockAction> => ({
   type: ActionType.DelBlock,
   blockNum,
+})
+
+export const setThemeAction = (
+  theme: Readonly<Theme>,
+): Readonly<SetThemeAction> => ({
+  type: ActionType.SetTheme,
+  theme,
 })

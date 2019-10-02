@@ -2,8 +2,8 @@ import { RpcResult, AccountName, Info, Block, ChainId, BlockNum } from '../api'
 import { Theme } from './state'
 
 export type Action =
-  | InitChainAction
   | IncrementHeadBlockNumAction
+  | SetAutoplayAction
   | GetInfoAction
   | SetInfoAction
   | GetBlockAction
@@ -14,8 +14,8 @@ export type Action =
   | SetThemeAction
 
 export enum ActionType {
-  InitChain = 'INIT_CHAIN',
   IncrementHeadBlockNum = 'INCREMENT_BLOCK_NUM',
+  SetAutoplay = 'SET_AUTOPLAY',
   GetInfo = 'GET_INFO',
   SetInfo = 'SET_INFO',
   GetBlock = 'GET_BLOCK',
@@ -26,18 +26,19 @@ export enum ActionType {
   SetTheme = 'SET_THEME',
 }
 
-export interface InitChainAction {
-  readonly type: ActionType.InitChain
-  readonly hostname: string
-  readonly chainId?: Readonly<ChainId> | void
-}
-
 export interface IncrementHeadBlockNumAction {
   readonly type: ActionType.IncrementHeadBlockNum
 }
 
+export interface SetAutoplayAction {
+  readonly type: ActionType.SetAutoplay
+  readonly autoplay: boolean
+}
+
 export interface GetInfoAction {
   readonly type: ActionType.GetInfo
+  readonly hostname: string
+  readonly chainId?: Readonly<ChainId> | void
 }
 
 export interface SetInfoAction {

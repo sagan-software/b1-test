@@ -27,7 +27,7 @@ export interface RawBlock {
   readonly block_num: BlockNum
   /** Block producer */
   readonly producer: AccountName
-  /** Time when the block was produced */
+  /** UTC time when the block was produced */
   readonly timestamp: string
   /** Transactions included in this block */
   readonly transactions: ReadonlyArray<RawTransaction>
@@ -41,6 +41,8 @@ export interface Block {
   readonly blockNum: BlockNum
   /** Block producer */
   readonly producer: AccountName
+  /** UTC time when the block was produced */
+  readonly timestamp: Date
   /** Transactions included in this block */
   readonly transactions: ReadonlyArray<Transaction>
 }
@@ -59,6 +61,7 @@ export interface Block {
 export async function getBlock(
   serverUrl: Readonly<URL>,
   blockNum: Readonly<BlockNum>,
+  signal?: AbortSignal,
 ): Promise<RpcResult<Block>> {
   const url = new URL('/v1/chain/get_block', serverUrl)
   // TODO abort controllers
@@ -71,6 +74,7 @@ export async function getBlock(
       body: JSON.stringify({
         block_num_or_id: blockNum,
       }),
+      signal,
     })
   } catch (e) {
     return resultErr({ type: RpcErrorType.BadStatus, status: 0 }) // TODO this is wrong
@@ -91,6 +95,7 @@ export async function getBlock(
       id: raw.id,
       blockNum: raw.block_num,
       producer: raw.producer,
+      timestamp: new Date(`${raw.timestamp}Z`),
       transactions: raw.transactions.map(convertRawTransaction),
     })
   } catch (e) {

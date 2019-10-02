@@ -2,17 +2,14 @@ import React from 'react'
 import styled from 'styled-components'
 import * as store from '../../store'
 import { ChainPresets } from './ChainPresets'
+import { FadeIn } from '../FadeIn'
 
-const Title = styled.h1`
-  text-align: center;
-`
+const Wrapper = styled(FadeIn)``
 
 export const HomePage: React.FC = () => {
   return (
-    <main>
-      <Title>Select a chain</Title>
-      <ChainPresets presets={store.mainnets} />
-      <ChainPresets presets={store.testnets} />
-    </main>
+    <Wrapper>
+      <ChainPresets presets={store.chainPresets} />
+    </Wrapper>
   )
 }

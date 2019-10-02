@@ -2,9 +2,9 @@ import {
   RouteType,
   getRouteTemplate,
   getRouteString,
-  home,
-  chain,
-  block,
+  homeRoute,
+  chainRoute,
+  blockRoute,
 } from './Router'
 
 describe('Router', () => {
@@ -21,20 +21,20 @@ describe('Router', () => {
   })
 
   it('generates home route params', () => {
-    expect(home()).toEqual({
+    expect(homeRoute()).toEqual({
       type: RouteType.Home,
     })
   })
 
   it('generates chain route params', () => {
-    expect(chain('api.eosnewyork.io')).toEqual({
+    expect(chainRoute('api.eosnewyork.io')).toEqual({
       type: RouteType.Chain,
       hostname: 'api.eosnewyork.io',
     })
   })
 
   it('generates block route params', () => {
-    expect(block('api.eosnewyork.io', 1)).toEqual({
+    expect(blockRoute('api.eosnewyork.io', 1)).toEqual({
       type: RouteType.Block,
       hostname: 'api.eosnewyork.io',
       blockNum: 1,
@@ -42,17 +42,17 @@ describe('Router', () => {
   })
 
   it('generates the expected home route string', () => {
-    expect(getRouteString(home())).toEqual('/')
+    expect(getRouteString(homeRoute())).toEqual('/')
   })
 
   it('generates the expected chain route string', () => {
-    expect(getRouteString(chain('api.eosnewyork.io'))).toEqual(
+    expect(getRouteString(chainRoute('api.eosnewyork.io'))).toEqual(
       '/api.eosnewyork.io',
     )
   })
 
   it('generates the expected block route string', () => {
-    expect(getRouteString(block('api.eosnewyork.io', 1))).toEqual(
+    expect(getRouteString(blockRoute('api.eosnewyork.io', 1))).toEqual(
       '/api.eosnewyork.io/1',
     )
   })

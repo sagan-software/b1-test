@@ -2,7 +2,8 @@ import { RpcError, Info, Block, ChainId, BlockNum } from '../api'
 import { RemoteData } from '../coreTypes'
 
 export interface State {
-  readonly rpcHostnameInput: string | void
+  readonly rpcHostnameInput: string
+  readonly autoplay: boolean
   readonly chain: Chain
   readonly theme: Theme
 }
@@ -55,6 +56,8 @@ export interface Theme {
   readonly bgColor: string
   readonly textColor: string
   readonly linkColor: string
+  readonly x: number
+  readonly y: number
   // readonly color: {
   //   readonly primary: string
   //   readonly primaryVariant: string

@@ -19,9 +19,9 @@ import {
   GetAbiAction,
   SetAbiAction,
   SetThemeAction,
-  InitChainAction,
   IncrementHeadBlockNumAction,
   DelBlockAction,
+  SetAutoplayAction,
 } from './action'
 import * as selectors from './selectors'
 import { defaultState } from './constants'
@@ -32,10 +32,10 @@ export function reducer(
   action: Readonly<Action>,
 ): Readonly<State> {
   switch (action.type) {
-  case ActionType.InitChain:
-    return onInitChain(state, action)
   case ActionType.IncrementHeadBlockNum:
     return onIncrementHeadBlockNum(state, action)
+  case ActionType.SetAutoplay:
+    return onSetAutoplay(state, action)
   case ActionType.GetInfo:
     return onGetInfo(state, action)
   case ActionType.SetInfo:
@@ -57,9 +57,9 @@ export function reducer(
   }
 }
 
-function onInitChain(
+function onGetInfo(
   state: Readonly<State>,
-  { hostname, chainId }: Readonly<InitChainAction>,
+  { hostname, chainId }: Readonly<GetInfoAction>,
 ): Readonly<State> {
   // Check if hostname input is the same
   const previousRpcHostname = selectors.getRpcHostnameInput(state)
@@ -116,20 +116,13 @@ function onIncrementHeadBlockNum(
   }
 }
 
-function onGetInfo(
+function onSetAutoplay(
   state: Readonly<State>,
-  _: Readonly<GetInfoAction>,
+  { autoplay }: Readonly<SetAutoplayAction>,
 ): Readonly<State> {
-  switch (state.chain.type) {
-  case RemoteDataType.Success:
-  case RemoteDataType.Loading:
-    return state
-  case RemoteDataType.Failure:
-  case RemoteDataType.Default:
-    return {
-        ...state,
-        chain: remoteDataLoading(),
-      }
+  return {
+    ...state,
+    autoplay,
   }
 }
 

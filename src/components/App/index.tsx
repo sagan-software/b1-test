@@ -7,13 +7,15 @@ import { ChainPage } from '../ChainPage'
 import { HomePage } from '../HomePage'
 import { NotFoundPage } from '../NotFoundPage'
 import { Router, Switch, Route, RouteType, getRouteTemplate } from '../Router'
-import { GlobalStyles } from './GlobalStyles'
+import { AppHeader } from './AppHeader'
+import { GlobalStyles } from '../GlobalStyles'
 
 const AppWithTheme: React.FC = () => {
   const theme = useSelector(getTheme)
   return (
     <ThemeProvider theme={theme}>
       <>
+        <AppHeader />
         <Switch>
           <Route
             exact={true}

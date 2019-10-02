@@ -4,8 +4,9 @@ import * as store from '../../store'
 import { ChainPreset } from './ChainPreset'
 
 const Wrapper = styled.div`
-  padding: 10px;
-  margin: 0 auto;
+  border: 1px solid #ccc;
+  border-bottom: 0;
+  margin: 0 auto 10px;
   max-width: 500px;
 `
 

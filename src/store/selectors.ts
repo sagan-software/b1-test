@@ -10,10 +10,12 @@ import {
   ChainData,
 } from './state'
 
-export function getRpcHostnameInput(
-  state: Readonly<State>,
-): Readonly<string> | void {
+export function getRpcHostnameInput(state: Readonly<State>): Readonly<string> {
   return state.rpcHostnameInput
+}
+
+export function getAutoplay(state: Readonly<State>): boolean {
+  return state.autoplay
 }
 
 export function getChain(state: Readonly<State>): Readonly<Chain> {
@@ -106,6 +108,14 @@ export function getChainPreset(
     for (let i = chainPresets.length; i--; ) {
       const chainPreset = chainPresets[i]
       if (chainPreset.id === chainId) {
+        return chainPreset
+      }
+    }
+  } else {
+    const hostname = state.rpcHostnameInput
+    for (let i = chainPresets.length; i--; ) {
+      const chainPreset = chainPresets[i]
+      if (chainPreset.defaultHostname === hostname) {
         return chainPreset
       }
     }

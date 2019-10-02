@@ -4,6 +4,7 @@ import {
   RouteComponentProps as RouteInnerComponentProps,
   Link as LinkInner,
 } from 'react-router-dom'
+import { BlockNum } from '../api'
 
 export type RouteParams =
   | HomeRouteParams
@@ -22,14 +23,14 @@ export interface HomeRouteParams {
   readonly type: RouteType.Home
 }
 
-export const home = (): HomeRouteParams => ({ type: RouteType.Home })
+export const homeRoute = (): HomeRouteParams => ({ type: RouteType.Home })
 
 export interface ChainRouteParams {
   readonly type: RouteType.Chain
   readonly hostname: string
 }
 
-export const chain = (hostname: string): ChainRouteParams => ({
+export const chainRoute = (hostname: string): ChainRouteParams => ({
   type: RouteType.Chain,
   hostname,
 })
@@ -37,12 +38,12 @@ export const chain = (hostname: string): ChainRouteParams => ({
 export interface BlockRouteParams {
   readonly type: RouteType.Block
   readonly hostname: string
-  readonly blockNum: number
+  readonly blockNum: Readonly<BlockNum>
 }
 
-export const block = (
+export const blockRoute = (
   hostname: string,
-  blockNum: number,
+  blockNum: Readonly<BlockNum>,
 ): BlockRouteParams => ({
   type: RouteType.Block,
   hostname,
@@ -53,7 +54,7 @@ export interface SettingsRouteParams {
   readonly type: RouteType.Settings
 }
 
-export const settings = (): SettingsRouteParams => ({
+export const settingsRoute = (): SettingsRouteParams => ({
   type: RouteType.Settings,
 })
 
