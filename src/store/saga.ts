@@ -9,19 +9,16 @@ import {
 import { call, take, select } from 'typed-redux-saga'
 import * as api from '../api'
 import {
-  Action,
   ActionType,
   GetInfoAction,
   GetBlockAction,
   GetAbiAction,
-  IncrementHeadBlockNumAction,
   DelBlockAction,
 } from './action'
-import { setInfoAction, setBlockAction } from './actionCreators'
+import { setInfoAction, setBlockAction, setAbiAction } from './actionCreators'
 import * as selectors from './selectors'
 import { RemoteDataType } from '../coreTypes'
-import { ChainSuccess } from './state'
-import { BlockNum } from '../api'
+import { BlockNum, AccountName } from '../api'
 import { Task } from 'redux-saga'
 
 export function* saga() {
@@ -46,43 +43,21 @@ function* rpcFlow(rpcUrl: Readonly<URL>) {
     const rpcActionChannel = yield actionChannel([
       ActionType.GetBlock,
       ActionType.GetAbi,
-      ActionType.DelBlock,
     ])
-    const delBlocks: { [blockNum: number]: void } = {}
     while (true) {
-      const action = yield* take<
-        DelBlockAction | GetBlockAction | GetAbiAction
-      >(rpcActionChannel)
-      const startTime = Date.now()
+      const action = yield* take<GetBlockAction | GetAbiAction>(
+        rpcActionChannel,
+      )
       switch (action.type) {
-      case ActionType.DelBlock:
-        delBlocks[(action.blockNum as unknown) as number] = undefined
-        continue
       case ActionType.GetBlock:
-        const key = (action.blockNum as unknown) as number
-        if (key in delBlocks) {
-            delete delBlocks[key]
-            continue
-          }
-        const controller = new AbortController()
-        const { task, drop } = yield race({
-            task: call(getBlock, rpcUrl, action.blockNum, controller.signal),
-            drop: call(cancelGetBlock, action.blockNum),
-          })
-        if (drop) {
-            console.log('ABORTED!!!!!!!!!!!!!!!!!!!!!!!')
-            controller.abort()
-          }
+        yield call(getBlock, rpcUrl, action.blockNum)
         break
       case ActionType.GetAbi:
           // TODO
+        yield call(getAbi, rpcUrl, action.account)
         break
       }
-      const endTime = Date.now()
-      const elapsed = endTime - startTime
-      if (elapsed < 300) {
-        yield delay(150)
-      }
+      yield delay(150)
     }
   }
 }
@@ -92,20 +67,12 @@ function* getInfo(rpcUrl: Readonly<URL>) {
   yield put(setInfoAction(result))
 }
 
-function* getBlock(
-  rpcUrl: Readonly<URL>,
-  blockNum: Readonly<BlockNum>,
-  signal: AbortSignal,
-) {
-  const result = yield* call(api.getBlock, rpcUrl, blockNum, signal)
+function* getBlock(rpcUrl: Readonly<URL>, blockNum: Readonly<BlockNum>) {
+  const result = yield* call(api.getBlock, rpcUrl, blockNum)
   yield put(setBlockAction(blockNum, result))
 }
 
-function* cancelGetBlock(blockNum: Readonly<BlockNum>) {
-  while (true) {
-    const action = yield* take<DelBlockAction>([ActionType.DelBlock])
-    if (action.blockNum === blockNum) {
-      return true
-    }
-  }
+function* getAbi(rpcUrl: Readonly<URL>, account: Readonly<AccountName>) {
+  const result = yield* call(api.getAbi, rpcUrl, account)
+  yield put(setAbiAction(account, result))
 }

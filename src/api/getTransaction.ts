@@ -13,6 +13,8 @@ export enum TransactionType {
 export interface StandardTransaction {
   /** Union type tag */
   readonly type: TransactionType.Standard
+  /** Transaction ID */
+  readonly id: Readonly<TransactionId>
   /** Context-free actions included in this transaction */
   readonly contextFreeActions: ReadonlyArray<Action>
   /** Non-context-free actions included in this transaction */
@@ -41,6 +43,8 @@ export interface RawTransaction {
 }
 
 export interface RawTrx {
+  /** Transaction ID */
+  readonly id: Readonly<TransactionId>
   readonly transaction: RawTransactionInner
 }
 
@@ -75,6 +79,7 @@ export function convertRawTransaction({ trx }: RawTransaction): Transaction {
   } else {
     return {
       type: TransactionType.Standard,
+      id: trx.id,
       contextFreeActions: trx.transaction.context_free_actions.map((action) => ({
         account: action.account,
         name: action.name,

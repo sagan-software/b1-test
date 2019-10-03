@@ -109,20 +109,28 @@ export const testnets: ReadonlyArray<ChainPreset> = chainPresets.filter(
   (preset) => preset.env === ChainEnv.Testnet,
 )
 
+const fonts = {
+  mono: '"IBM Plex Mono", monospace',
+  head: '"IBM Plex Sans Condensed", sans-serif',
+  body: '"IBM Plex Sans", sans-serif',
+}
+
 export const lightTheme: Readonly<Theme> = {
   bgColor: '#ffffff',
   textColor: '#333333',
-  linkColor: 'red',
+  linkColor: '#113dde',
   x: 10,
   y: 10,
+  fonts,
 }
 
 export const darkTheme: Readonly<Theme> = {
   bgColor: '#1f1b24',
   textColor: '#fff',
-  linkColor: 'blue',
+  linkColor: '#0b4e92',
   x: 10,
   y: 10,
+  fonts,
 }
 
 export const defaultTheme: Readonly<Theme> = lightTheme

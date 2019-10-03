@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { RouteComponentProps } from 'react-router'
 import * as store from '../../store'
-import { ChainFailurePage } from './ChainFailurePage'
-import { ChainLoadingPage } from './ChainLoadingPage'
-import { ChainSuccessPage } from './ChainSuccessPage'
 import { RemoteDataType } from '../../coreTypes'
+import ChainFailurePage from './ChainPageFailure'
+import ChainLoadingPage from './ChainPageLoading'
+import ChainSuccessPage from './ChainPageSuccess'
 
-export const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
+const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
   match,
 }) => {
   const hostname = match.params.hostname
@@ -16,7 +16,7 @@ export const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
     if (hostname !== previousHostname) {
       dispatch(store.getInfoAction(hostname))
     }
-  }, [dispatch, hostname])
+  }, [dispatch, hostname, previousHostname])
   const chain = store.useSelector(store.getChain)
   switch (chain.type) {
   case RemoteDataType.Success:
@@ -28,3 +28,5 @@ export const ChainPage: React.FC<RouteComponentProps<{ hostname: string }>> = ({
     return <ChainLoadingPage />
   }
 }
+
+export default ChainPage

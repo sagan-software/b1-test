@@ -1,4 +1,12 @@
-import { RpcResult, Info, Block, ChainId, BlockNum } from '../api'
+import {
+  RpcResult,
+  Info,
+  Block,
+  ChainId,
+  BlockNum,
+  AccountName,
+  RawAbi,
+} from '../api'
 import {
   ActionType,
   IncrementHeadBlockNumAction,
@@ -9,6 +17,8 @@ import {
   DelBlockAction,
   SetAutoplayAction,
   SetThemeAction,
+  SetAbiAction,
+  GetAbiAction,
 } from './action'
 import { Theme } from './state'
 
@@ -62,6 +72,22 @@ export const delBlockAction = (
 ): Readonly<DelBlockAction> => ({
   type: ActionType.DelBlock,
   blockNum,
+})
+
+export const getAbiAction = (
+  account: Readonly<AccountName>,
+): Readonly<GetAbiAction> => ({
+  type: ActionType.GetAbi,
+  account,
+})
+
+export const setAbiAction = (
+  account: Readonly<AccountName>,
+  abi: Readonly<RpcResult<RawAbi>>,
+): Readonly<SetAbiAction> => ({
+  type: ActionType.SetAbi,
+  account,
+  abi,
 })
 
 export const setThemeAction = (

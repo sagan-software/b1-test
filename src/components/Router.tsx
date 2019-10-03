@@ -1,22 +1,18 @@
 import React from 'react'
-import {
-  Route as RouteInner,
-  RouteComponentProps as RouteInnerComponentProps,
-  Link as LinkInner,
-} from 'react-router-dom'
-import { BlockNum } from '../api'
+import { Link as LinkInner } from 'react-router-dom'
+import { BlockNum, AccountName, ActionName } from '../api'
 
 export type RouteParams =
   | HomeRouteParams
   | ChainRouteParams
   | BlockRouteParams
-  | SettingsRouteParams
+  | RicardianRouteParams
 
 export enum RouteType {
   Home = 'HOME',
   Chain = 'CHAIN',
   Block = 'BLOCK',
-  Settings = 'SETTINGS',
+  Ricardian = 'RICARDIAN',
 }
 
 export interface HomeRouteParams {
@@ -50,12 +46,22 @@ export const blockRoute = (
   blockNum,
 })
 
-export interface SettingsRouteParams {
-  readonly type: RouteType.Settings
+export interface RicardianRouteParams {
+  readonly type: RouteType.Ricardian
+  readonly hostname: string
+  readonly account: string
+  readonly action?: string | void
 }
 
-export const settingsRoute = (): SettingsRouteParams => ({
-  type: RouteType.Settings,
+export const ricardianRoute = (
+  hostname: string,
+  account: AccountName,
+  action?: ActionName | void,
+): RicardianRouteParams => ({
+  type: RouteType.Ricardian,
+  hostname,
+  account,
+  action,
 })
 
 export function getRouteTemplate(routeType: RouteType): string {
@@ -65,9 +71,9 @@ export function getRouteTemplate(routeType: RouteType): string {
   case RouteType.Chain:
     return '/:hostname'
   case RouteType.Block:
-    return '/:hostname/:blockNum'
-  case RouteType.Settings:
-    return '/settings'
+    return '/:hostname/block/:blockNum'
+  case RouteType.Ricardian:
+    return '/:hostname/account/:account'
   }
 }
 
@@ -78,9 +84,10 @@ export function getRouteString(route: RouteParams): string {
   case RouteType.Chain:
     return `/${route.hostname}`
   case RouteType.Block:
-    return `/${route.hostname}/${route.blockNum}`
-  case RouteType.Settings:
-    return '/settings'
+    return `/${route.hostname}/block/${route.blockNum}`
+  case RouteType.Ricardian:
+    const hash = route.action ? `#${route.action}` : ''
+    return `/${route.hostname}/account/${route.account}${hash}`
   }
 }
 

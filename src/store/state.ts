@@ -1,4 +1,4 @@
-import { RpcError, Info, Block, ChainId, BlockNum } from '../api'
+import { RpcError, Block, ChainId, BlockNum, RawAbi } from '../api'
 import { RemoteData } from '../coreTypes'
 
 export interface State {
@@ -18,6 +18,9 @@ export interface ChainSuccess {
   readonly headBlockNum: Readonly<BlockNum>
   readonly blocks: {
     readonly [blockNum: number]: Readonly<RemoteData<Block, RpcError>>;
+  }
+  readonly abis: {
+    readonly [account: string]: Readonly<RemoteData<RawAbi, RpcError>>;
   }
 }
 
@@ -58,6 +61,11 @@ export interface Theme {
   readonly linkColor: string
   readonly x: number
   readonly y: number
+  readonly fonts: {
+    readonly body: string;
+    readonly head: string;
+    readonly mono: string;
+  }
   // readonly color: {
   //   readonly primary: string
   //   readonly primaryVariant: string

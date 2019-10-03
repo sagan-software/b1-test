@@ -1,14 +1,12 @@
 import {
-  RemoteData,
   RemoteDataType,
   remoteDataLoading,
   remoteDataSuccess,
-  getData,
   ResultType,
   remoteDataFailure,
   remoteDataDefault,
 } from '../coreTypes'
-import { RpcError, BlockNum } from '../api'
+import { BlockNum } from '../api'
 import {
   Action,
   ActionType,
@@ -25,7 +23,7 @@ import {
 } from './action'
 import * as selectors from './selectors'
 import { defaultState } from './constants'
-import { State, ChainErrorType, ChainError } from './state'
+import { State, ChainErrorType } from './state'
 
 export function reducer(
   state: Readonly<State> = defaultState,
@@ -142,7 +140,8 @@ function onSetInfo(
           rpcUrl,
           chainId: info.data.chainId,
           headBlockNum: info.data.headBlockNum,
-          blocks: selectors.getBlocks(state) || {},
+          blocks: {},
+          abis: {},
         }),
       }
   case ResultType.Err:
@@ -164,11 +163,7 @@ function onGetBlock(
   state: Readonly<State>,
   { blockNum }: Readonly<GetBlockAction>,
 ): Readonly<State> {
-  const block = selectors.getBlock(state, blockNum) || remoteDataDefault
-  if (
-    state.chain.type === RemoteDataType.Success &&
-    block.type === RemoteDataType.Default
-  ) {
+  if (state.chain.type === RemoteDataType.Success) {
     const key = (blockNum as unknown) as number
     return {
       ...state,
@@ -204,18 +199,9 @@ function onSetBlock(
         },
       }),
     }
+  } else {
+    return state
   }
-  // return {
-  //   ...state,
-  //   blocks: {
-  //     ...state.blocks,
-  //     [blockNum]:
-  //       block.type === ResultType.Ok
-  //         ? remoteDataSuccess(block.data)
-  //         : remoteDataFailure(block.error, state.blocks[blockNum]),
-  //   },
-  // }
-  return state
 }
 
 function onDelBlock(
@@ -240,16 +226,47 @@ function onDelBlock(
 
 function onGetAbi(
   state: Readonly<State>,
-  action: Readonly<GetAbiAction>,
+  { account }: Readonly<GetAbiAction>,
 ): Readonly<State> {
-  return state
+  if (state.chain.type === RemoteDataType.Success) {
+    const key = (account as unknown) as string
+    return {
+      ...state,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
+        abi: {
+          ...state.chain.data.abis,
+          [key]: remoteDataLoading(),
+        },
+      }),
+    }
+  } else {
+    return state
+  }
 }
 
 function onSetAbi(
   state: Readonly<State>,
-  action: Readonly<SetAbiAction>,
+  { account, abi }: Readonly<SetAbiAction>,
 ): Readonly<State> {
-  return state
+  if (state.chain.type === RemoteDataType.Success) {
+    const key = (account as unknown) as number
+    return {
+      ...state,
+      chain: remoteDataSuccess({
+        ...state.chain.data,
+        abis: {
+          ...state.chain.data.abis,
+          [key]:
+            abi.type === ResultType.Ok
+              ? remoteDataSuccess(abi.data)
+              : remoteDataFailure(abi.error),
+        },
+      }),
+    }
+  } else {
+    return state
+  }
 }
 
 function onSetTheme(

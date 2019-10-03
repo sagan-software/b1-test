@@ -1,14 +1,14 @@
-import { RpcError, Info, Block, ChainId, BlockNum } from '../api'
+import {
+  RpcError,
+  Block,
+  ChainId,
+  BlockNum,
+  RawAbi,
+  AccountName,
+} from '../api'
 import { RemoteData, getData, RemoteDataType } from '../coreTypes'
 import { chainPresets } from './constants'
-import {
-  State,
-  ChainPreset,
-  Theme,
-  Chain,
-  ChainError,
-  ChainData,
-} from './state'
+import { State, ChainPreset, Theme, Chain, ChainData } from './state'
 
 export function getRpcHostnameInput(state: Readonly<State>): Readonly<string> {
   return state.rpcHostnameInput
@@ -79,26 +79,26 @@ export function getBlock(
   }
 }
 
-// export function getBlockData(
-//   state: Readonly<State>,
-//   blockNum: Readonly<number>,
-// ): Readonly<Block> | void {
-//   const block = getBlock(state, blockNum)
-//   if (block) {
-//     return getData(block)
-//   }
-// }
+export function getAbis(
+  state: Readonly<State>,
+): Readonly<{
+  readonly [account: string]: RemoteData<RawAbi, RpcError>;
+}> | void {
+  const chain = getChain(state)
+  if (chain.type === RemoteDataType.Success) {
+    return chain.data.abis
+  }
+}
 
-// export function getHasBlock(
-//   state: Readonly<State>,
-//   blockNum: Readonly<number>,
-// ): Readonly<boolean> {
-//   return !!getBlock(state, blockNum)
-// }
-
-// export function getBlockCount(state: Readonly<State>): Readonly<number> {
-//   return Object.keys(state.blocks).length
-// }
+export function getAbi(
+  state: Readonly<State>,
+  account: Readonly<AccountName>,
+): Readonly<RemoteData<RawAbi, RpcError>> | void {
+  const abis = getAbis(state)
+  if (abis) {
+    return abis[(account as unknown) as string]
+  }
+}
 
 export function getChainPreset(
   state: Readonly<State>,

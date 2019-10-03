@@ -9,6 +9,8 @@ const fadeIn = keyframes`
   }
 `
 
-export const FadeIn = styled.div`
+const FadeIn = styled.div`
   animation: ${fadeIn} 500ms;
 `
+
+export default FadeIn

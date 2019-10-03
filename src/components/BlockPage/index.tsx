@@ -3,13 +3,13 @@ import { RouteComponentProps } from 'react-router'
 import * as api from '../../api'
 import * as store from '../../store'
 import { RemoteDataType, remoteDataDefault } from '../../coreTypes'
-import { ChainFailurePage } from '../ChainPage/ChainFailurePage'
-import { ChainLoadingPage } from '../ChainPage/ChainLoadingPage'
-import { BlockLoadingPage } from './BlockLoadingPage'
-import { BlockFailurePage } from './BlockFailurePage'
-import { BlockSuccessPage } from './BlockSuccessPage'
+import ChainFailurePage from '../ChainPage/ChainPageFailure'
+import ChainLoadingPage from '../ChainPage/ChainPageLoading'
+import BlockLoadingPage from './BlockPageLoading'
+import BlockFailurePage from './BlockPageFailure'
+import BlockSuccessPage from './BlockPageSuccess'
 
-export const BlockPage: React.FC<
+const BlockPage: React.FC<
   RouteComponentProps<{ hostname: string; blockNum: string }>
 > = ({ match }) => {
   const hostname = match.params.hostname
@@ -19,7 +19,7 @@ export const BlockPage: React.FC<
     if (hostname !== previousHostname) {
       dispatch(store.getInfoAction(hostname))
     }
-  }, [dispatch, hostname])
+  }, [dispatch, hostname, previousHostname])
 
   let blockNum: api.BlockNum | void
   try {
@@ -40,7 +40,7 @@ export const BlockPage: React.FC<
         dispatch(store.getBlockAction(blockNum))
       }
     }
-  }, [dispatch, hostname, chain, blockNum])
+  }, [dispatch, hostname, chain.type, block.type, blockNum])
 
   if (!blockNum) {
     return <>Invalid block number</>
@@ -55,7 +55,13 @@ export const BlockPage: React.FC<
       case RemoteDataType.Failure:
         return <BlockFailurePage />
       case RemoteDataType.Success:
-        return <BlockSuccessPage chain={chain.data} block={block.data} />
+        return (
+            <BlockSuccessPage
+              chain={chain.data}
+              block={block.data}
+              hostname={hostname}
+            />
+          )
       }
   case RemoteDataType.Loading:
   case RemoteDataType.Default:
@@ -64,3 +70,5 @@ export const BlockPage: React.FC<
     return <ChainFailurePage />
   }
 }
+
+export default BlockPage

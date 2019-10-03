@@ -1,26 +1,6 @@
 import 'normalize.css'
-import { createGlobalStyle, ThemeProps, keyframes } from 'styled-components'
+import { createGlobalStyle, ThemeProps } from 'styled-components'
 import { Theme } from '../store'
-
-export const GlobalStyles = createGlobalStyle<ThemeProps<Theme>>`
-body {
-  background-color: ${({ theme }) => theme.bgColor};
-  color: ${({ theme }) => theme.textColor};
-  font-family: "Share Tech Mono", monospace;
-}
-
-a {
-  color: ${({ theme }) => theme.linkColor};
-  text-decoration: none;
-}
-
-button {
-  border-radius: 3px;
-  border: 0;
-  background-color: ${({ theme }) => theme.linkColor};
-  padding: 10px;
-}
-`
 
 // Breakpoint
 export enum Bp {
@@ -46,7 +26,38 @@ export function getMinWidth(bp: Bp): number {
   }
 }
 
-export function minWidth(bp: Bp): string {
+export function above(bp: Bp): string {
   const width = getMinWidth(bp)
-  return `(min-width: ${width})`
+  return `(min-width: ${width}px)`
 }
+
+const GlobalStyles = createGlobalStyle<ThemeProps<Theme>>`
+body {
+  background-color: ${({ theme }) => theme.bgColor};
+  color: ${({ theme }) => theme.textColor};
+  font-family: ${({ theme }) => theme.fonts.body};
+}
+
+code, pre, kbd {
+  font-family: ${({ theme }) => theme.fonts.mono};
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: ${({ theme }) => theme.fonts.head};
+}
+
+a {
+  color: ${({ theme }) => theme.linkColor};
+  text-decoration: none;
+}
+
+button {
+  border-radius: 3px;
+  border: 0;
+  background-color: ${({ theme }) => theme.linkColor};
+  padding: 10px;
+  color: #fff;
+}
+`
+
+export default GlobalStyles

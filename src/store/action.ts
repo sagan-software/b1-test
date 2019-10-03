@@ -1,4 +1,12 @@
-import { RpcResult, AccountName, Info, Block, ChainId, BlockNum } from '../api'
+import {
+  RpcResult,
+  AccountName,
+  Info,
+  Block,
+  ChainId,
+  BlockNum,
+  RawAbi,
+} from '../api'
 import { Theme } from './state'
 
 export type Action =
@@ -69,6 +77,8 @@ export interface GetAbiAction {
 
 export interface SetAbiAction {
   readonly type: ActionType.SetAbi
+  readonly account: Readonly<AccountName>
+  readonly abi: Readonly<RpcResult<RawAbi>>
 }
 
 export interface SetThemeAction {
