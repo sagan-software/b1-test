@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "80aa922982666f9cc59bcc94a93b3f21",
+    "revision": "e87c53a026f0ead6c5b8b6da74281bcb",
     "url": "/b1-test/index.html"
   },
   {
@@ -8,64 +8,84 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/b1-test/static/css/7.053814bf.chunk.css"
   },
   {
-    "revision": "e31509fe4d35a208e956",
-    "url": "/b1-test/static/js/0.fd12b475.chunk.js"
+    "revision": "fe9acf1239826d547052",
+    "url": "/b1-test/static/js/0.84fa7481.chunk.js"
   },
   {
-    "revision": "63c92178be82a27e98d0",
-    "url": "/b1-test/static/js/1.b876910f.chunk.js"
+    "revision": "19f14e2fff151e8a650c",
+    "url": "/b1-test/static/js/1.3d6d85b7.chunk.js"
   },
   {
-    "revision": "5b103d7a8d5f26cfb18e",
-    "url": "/b1-test/static/js/10.aa80bcd3.chunk.js"
+    "revision": "28ba8d7e5c2805092a9e",
+    "url": "/b1-test/static/js/10.98ccc7d4.chunk.js"
   },
   {
-    "revision": "4f19d513aec0b49627c0",
-    "url": "/b1-test/static/js/11.407d574d.chunk.js"
+    "revision": "90952be2c2eeb0e24253",
+    "url": "/b1-test/static/js/11.b75cddc0.chunk.js"
   },
   {
-    "revision": "fc3e80c096e013ebe384",
-    "url": "/b1-test/static/js/12.77a90ae4.chunk.js"
+    "revision": "a0e3f3fc296dc1cfaf59",
+    "url": "/b1-test/static/js/12.a4618bac.chunk.js"
   },
   {
-    "revision": "39e4e15bf4de07f464c1",
-    "url": "/b1-test/static/js/13.c93f7985.chunk.js"
+    "revision": "9c4a23dcba367389cdad",
+    "url": "/b1-test/static/js/13.cba631ed.chunk.js"
   },
   {
-    "revision": "fe128f7dae00d406af76",
-    "url": "/b1-test/static/js/14.a14dd501.chunk.js"
+    "revision": "ac8d96a36d02af5e055b",
+    "url": "/b1-test/static/js/14.f3f22951.chunk.js"
   },
   {
-    "revision": "5aa6eeadb7148d6c7372",
-    "url": "/b1-test/static/js/2.d10ad556.chunk.js"
+    "revision": "d9818d8ee6b15b5dbdf9",
+    "url": "/b1-test/static/js/2.a94b17f1.chunk.js"
   },
   {
-    "revision": "375832e31b60eab4404b",
-    "url": "/b1-test/static/js/5.451356a5.chunk.js"
+    "revision": "da37c509f0aa940be410",
+    "url": "/b1-test/static/js/5.8548fc7b.chunk.js"
   },
   {
-    "revision": "948892bdf3171001fe15",
-    "url": "/b1-test/static/js/6.30605cb6.chunk.js"
+    "revision": "45c45b93af0b3d336195",
+    "url": "/b1-test/static/js/6.4b9c662b.chunk.js"
   },
   {
     "revision": "412a55e04dd222a7fe6c",
     "url": "/b1-test/static/js/7.71f34c2f.chunk.js"
   },
   {
-    "revision": "9b343f60c82f0ab57858",
-    "url": "/b1-test/static/js/8.da4b1445.chunk.js"
+    "revision": "a72be01ac790c3e7fe58",
+    "url": "/b1-test/static/js/8.c9d83768.chunk.js"
   },
   {
-    "revision": "8e4c82ffa54ad9b6ee3f",
-    "url": "/b1-test/static/js/9.f82ef033.chunk.js"
+    "revision": "ca7bd55b374d2787d2d3",
+    "url": "/b1-test/static/js/9.35626f32.chunk.js"
   },
   {
-    "revision": "f71a1da9ea54d5dfa7eb",
-    "url": "/b1-test/static/js/main.7568b820.chunk.js"
+    "revision": "aaf572e3fb24f058d8aa",
+    "url": "/b1-test/static/js/main.f14bb9af.chunk.js"
   },
   {
-    "revision": "07af5916d1bd115b94ba",
-    "url": "/b1-test/static/js/runtime-main.9655a5cf.js"
+    "revision": "a1eee011965cfcc8b8d8",
+    "url": "/b1-test/static/js/runtime-main.bacf4b04.js"
+  },
+  {
+    "revision": "99f41d301dd1f59bb00eafd9554fdcb8",
+    "url": "/b1-test/static/media/bos.99f41d30.png"
+  },
+  {
+    "revision": "279a0c581335aca995d525c613f7a974",
+    "url": "/b1-test/static/media/eos.279a0c58.jpg"
+  },
+  {
+    "revision": "421a8c3163d8bd4f2ceee015f2f3892e",
+    "url": "/b1-test/static/media/jungle.421a8c31.png"
+  },
+  {
+    "revision": "85d3ee0b9025e8fed0de81dafca03621",
+    "url": "/b1-test/static/media/kylin.85d3ee0b.webp"
+  },
+  {
+    "revision": "53c7895020c0ee2b586844bb8e6569c9",
+    "url": "/b1-test/static/media/lynx.53c78950.jpg"
   },
   {
     "revision": "5cb7edfceb233100075dc9a1e12e8da3",
@@ -162,5 +182,17 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "ebf6d1640ccddb99fb49f73c052c55a8",
     "url": "/b1-test/static/media/roboto-latin-900italic.ebf6d164.woff2"
+  },
+  {
+    "revision": "8bcdc01293ae66d365dd66bd24e0e7b9",
+    "url": "/b1-test/static/media/telos.8bcdc012.png"
+  },
+  {
+    "revision": "f0ca911723f127428a58a18d2e76ea85",
+    "url": "/b1-test/static/media/wax.f0ca9117.png"
+  },
+  {
+    "revision": "69364899e7906632e858b412e9ccf2a1",
+    "url": "/b1-test/static/media/worbli.69364899.jpg"
   }
 ]);

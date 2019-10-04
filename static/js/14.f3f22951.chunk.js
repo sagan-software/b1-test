@@ -1,0 +1,2 @@
+(window["webpackJsonpb1-test"]=window["webpackJsonpb1-test"]||[]).push([[14],{529:function(n,t,e){"use strict";e.r(t);var a=e(0),c=e.n(a);t.default=function(n){n.match;return c.a.createElement("div",null,"Transaction page")}}}]);
+//# sourceMappingURL=14.f3f22951.chunk.js.map
