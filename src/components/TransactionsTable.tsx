@@ -12,8 +12,6 @@ import {
 import DoneIcon from '@material-ui/icons/Done'
 import React from 'react'
 import * as api from '../api'
-import Link from './Link'
-import { homeRoute } from './Router'
 
 const TransactionRow: React.FC<{
   url: URL;
