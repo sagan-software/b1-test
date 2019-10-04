@@ -48,7 +48,6 @@ function onPlayBlocks(state: State, { url }: PlayBlocks): State {
       isPlaying: true,
     })
   }
-  console.log('RESETING STATE')
   // If the new URL is different from the old one then we return a blank state
 }
 
@@ -84,22 +83,31 @@ function onPushBlock(state: State, { url, num, block }: PushBlock): State {
 
 function onSelectAccount(state: State, { url, account }: SelectAccount): State {
   if (state && api.isOk(state) && hasSameUrl(state, url)) {
-    return state
+    const selected = state.data.selectedAccount
+    if (selected && selected.name !== account) {
+      return api.resultOk({
+        ...state.data,
+        selectedAccount: undefined,
+      })
+    }
   }
+  return state
 }
 
 function onSelectBlock(state: State, { url, num }: SelectBlock): State {
   if (state && api.isOk(state) && hasSameUrl(state, url)) {
-    const block = getBlock(state, num)
-    if (block) {
-      return api.resultOk({
-        ...state.data,
-        selectedBlock: { num, result: block },
-      })
+    const selected = state.data.selectedBlock
+    if (!selected || (selected && selected.num !== num)) {
+      const block = getBlock(state, num)
+      if (block) {
+        return api.resultOk({
+          ...state.data,
+          selectedBlock: { num, result: block },
+        })
+      }
     }
-    return state
   }
-  // If the new URL is different from the old one then we return a blank state
+  return state
 }
 
 function onSetInfo(state: State, { url, info, isPlaying }: SetInfo): State {
@@ -126,8 +134,16 @@ function onSetInfo(state: State, { url, info, isPlaying }: SetInfo): State {
 
 function onSetSelectedAccount(
   state: State,
-  action: SetSelectedAccount,
-): State {}
+  { url, account }: SetSelectedAccount,
+): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
+    return api.resultOk({
+      ...state.data,
+      selectedAccount: account,
+    })
+  }
+  return state
+}
 
 function onSetSelectedBlock(
   state: State,

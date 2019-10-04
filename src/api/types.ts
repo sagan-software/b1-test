@@ -41,17 +41,13 @@ export interface RawError {
   readonly message: Readonly<string>
 }
 
-export function isRawError(data: any): data is RawError {
-  // TODO test against json schema
-  return data && typeof data === 'object' && 'code' in data && 'error' in data
-}
-
 export interface RpcError {
   type: RpcErrorType
   raw?: RawError
 }
 
 export enum RpcErrorType {
+  Unreachable = 'UNREACHABLE',
   NoCors = 'NO_CORS',
   BadStatus = 'BAD_STATUS',
   InvalidJson = 'INVALID_JSON',

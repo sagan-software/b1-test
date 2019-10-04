@@ -1,13 +1,14 @@
 import { put, delay, fork, cancel } from 'redux-saga/effects'
-import { take, call, cancelled, select } from 'typed-redux-saga'
+import { take, call, select } from 'typed-redux-saga'
 import * as api from '../api'
 import { ActionType, PlayBlocks, SelectAccount, SelectBlock } from './actions'
 import {
   createSetInfo,
   createPushBlock,
+  createSetSelectedAccount,
   createSetSelectedBlock,
 } from './actionCreators'
-import { getBlock, getSelectedBlock, getUrl, getInfo } from './selectors'
+import * as selectors from './selectors'
 
 export function* saga() {
   while (true) {
@@ -24,19 +25,34 @@ export function* saga() {
     case ActionType.SelectBlock:
       yield* onSelectBlock(action)
       break
+    case ActionType.SelectAccount:
+      yield* onSelectAccount(action)
+      break
     }
   }
 }
 
-function* onPlayBlocks({ url }: PlayBlocks) {
+function* getInfo(url: URL, isPlaying: boolean) {
   const info = yield* call(api.getInfo, url)
-  yield put(createSetInfo(url, info, true))
+  yield put(createSetInfo(url, info, isPlaying))
+}
 
-  if (info.type === api.ResultType.Err) {
+function* getInfoIfNecessary(url: URL, isPlaying: boolean) {
+  const previousUrl = yield* select(selectors.getUrl)
+  if (!previousUrl || previousUrl.host !== url.host) {
+    yield* getInfo(url, isPlaying)
+  }
+}
+
+function* onPlayBlocks({ url }: PlayBlocks) {
+  yield* getInfo(url, true)
+
+  const info = yield* select(selectors.getInfo)
+  if (!info) {
     return
   }
 
-  const task = yield fork(playBlocksFlow, url, info.data.head_block_num)
+  const task = yield fork(playBlocksFlow, url, info.head_block_num)
   yield* take(ActionType.PauseBlocks)
   yield cancel(task)
 }
@@ -61,15 +77,19 @@ export function* playBlocksFlow(url: URL, headBlockNum: api.BlockNum) {
 }
 
 function* onSelectBlock({ url, num }: SelectBlock) {
-  const block = yield* select(getSelectedBlock)
-  if (!block) {
-    const info = yield* select(getInfo)
-    if (!info) {
-      const info = yield* call(api.getInfo, url)
-      yield put(createSetInfo(url, info, false))
-    }
-
+  yield* getInfoIfNecessary(url, false)
+  const selected = yield* select(selectors.getSelectedBlock)
+  if (!selected) {
     const result = yield* call(api.getBlock, url, num)
     yield put(createSetSelectedBlock(url, { num, result }))
+  }
+}
+
+function* onSelectAccount({ url, account }: SelectAccount) {
+  yield* getInfoIfNecessary(url, false)
+  const selected = yield* select(selectors.getSelectedAccount)
+  if (!selected) {
+    const abi = yield* call(api.getAbi, url, account)
+    yield put(createSetSelectedAccount(url, { name: account, abi }))
   }
 }

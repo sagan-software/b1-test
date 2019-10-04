@@ -1,10 +1,10 @@
+import { Link as MuiLink } from '@material-ui/core'
 import React from 'react'
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps,
 } from 'react-router-dom'
-import MuiLink from '@material-ui/core/Link'
-import { RouteParams, getRouteString, chainRoute } from './Router'
+import { getRouteString, RouteParams } from './Router'
 
 const Component: React.FC<{ to: RouteParams }> = ({
   to,

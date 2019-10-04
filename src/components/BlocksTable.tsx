@@ -1,7 +1,6 @@
-import React from 'react'
 import {
-  Paper,
   Hidden,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -10,10 +9,11 @@ import {
   Typography,
 } from '@material-ui/core'
 import Skeleton from '@material-ui/lab/Skeleton'
-import Link from './Link'
-import { blockRoute, accountRoute } from './Router'
+import React from 'react'
 import * as api from '../api'
 import * as store from '../store'
+import Link from './Link'
+import { blockRoute } from './Router'
 
 const BlockRow: React.FC<{ url: URL; block: store.Block }> = ({
   block,
@@ -26,14 +26,14 @@ const BlockRow: React.FC<{ url: URL; block: store.Block }> = ({
   let timestamp
   let id
   if (result && api.isOk(result)) {
+    // The block is loaded, show the contents
     const data = result.data
-    producer = (
-      <Link to={accountRoute(url.host, data.producer)}>{data.producer}</Link>
-    )
+    producer = data.producer
     actions = api.getNumActionsInBlock(data).toLocaleString()
     timestamp = data.timestamp
     id = data.id
   } else {
+    // The block is loading or failed
     producer = <Skeleton />
     actions = <Skeleton />
     timestamp = <Skeleton />

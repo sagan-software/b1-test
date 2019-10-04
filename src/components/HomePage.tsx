@@ -1,24 +1,26 @@
+import {
+  Avatar,
+  Box,
+  Container,
+  Fade,
+  Grid,
+  Hidden,
+  Link,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListSubheader,
+  Paper,
+  Typography,
+} from '@material-ui/core'
 import React from 'react'
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps,
 } from 'react-router-dom'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListSubheader from '@material-ui/core/ListSubheader'
-import Avatar from '@material-ui/core/Avatar'
-import Container from '@material-ui/core/Container'
-import Link from '@material-ui/core/Link'
-import Hidden from '@material-ui/core/Hidden'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
-import Fade from '@material-ui/core/Fade'
 import * as chainPresets from '../chainPresets'
-import { RouteParams, getRouteString, chainRoute } from './Router'
+import { chainRoute, getRouteString, RouteParams } from './Router'
 
 const ListItemLink: React.FC<{ to: RouteParams }> = ({
   to,
@@ -48,11 +50,11 @@ const ListItemLink: React.FC<{ to: RouteParams }> = ({
 const ChainPreset: React.FC<{ preset: chainPresets.ChainPreset }> = ({
   preset,
 }) => (
-  <ListItemLink to={chainRoute(preset.url.hostname)}>
+  <ListItemLink to={chainRoute(preset.url.host)}>
     <ListItemAvatar>
       <Avatar src={`/${preset.logo}`} />
     </ListItemAvatar>
-    <ListItemText primary={preset.name} secondary={preset.url.hostname} />
+    <ListItemText primary={preset.name} secondary={preset.url.host} />
   </ListItemLink>
 )
 

@@ -1,12 +1,8 @@
-import React from 'react'
-import Container from '@material-ui/core/Container'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
+import { Box, Container, Fade, Grid, Typography } from '@material-ui/core'
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline'
-import Fade from '@material-ui/core/Fade'
-import { homeRoute } from './Router'
+import React from 'react'
 import RouterLink from './Link'
+import { homeRoute } from './Router'
 
 const Component: React.FC<{ message: string }> = ({ message }) => {
   return (

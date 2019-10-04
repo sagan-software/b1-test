@@ -1,23 +1,29 @@
-import React, { useEffect, useCallback } from 'react'
-import { RouteComponentProps } from 'react-router'
-import Typography from '@material-ui/core/Typography'
-import Avatar from '@material-ui/core/Avatar'
-import Container from '@material-ui/core/Container'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
-import Fade from '@material-ui/core/Fade'
-import Button from '@material-ui/core/Button'
-import Breadcrumbs from '@material-ui/core/Breadcrumbs'
+import {
+  Box,
+  Button,
+  Grid,
+  Hidden,
+  Paper,
+  Tab,
+  Tabs,
+  Typography,
+} from '@material-ui/core'
 import PauseIcon from '@material-ui/icons/Pause'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import React, { useCallback, useEffect } from 'react'
+import { RouteComponentProps } from 'react-router'
+import * as api from '../api'
+import * as store from '../store'
+import ActionsTable from './ActionsTable'
 import BlocksTable from './BlocksTable'
 import ErrorPage from './ErrorPage'
-import Link from './Link'
-import { homeRoute, chainRoute } from './Router'
-import * as api from '../api'
-import * as chainPresets from '../chainPresets'
-import * as store from '../store'
+import PageBody from './PageBody'
+import PageHeader from './PageHeader'
+import PageWrapper from './PageWrapper'
+import { ChainTab } from './Router'
+import TransactionsTable from './TransactionsTable'
 
+// The button that starts/stops auto-playing blocks
 const AutoplayButton: React.FC<{ url: URL }> = ({ url }) => {
   const dispatch = store.useDispatch()
   const isPlaying = store.useSelector(store.getIsPlaying)
@@ -36,42 +42,131 @@ const AutoplayButton: React.FC<{ url: URL }> = ({ url }) => {
       endIcon={icon}
       onClick={onClick}
       color='primary'
+      size='large'
     >
       {text}
     </Button>
   )
 }
 
-const Table: React.FC<{ url: URL }> = ({ url }) => {
+// Max number of rows on actions/transactions tabs
+const maxNonBlockRows = 20
+
+// Gets desired # of transactions and returns early
+function getTransactions(chain: store.ChainState): api.Transaction[] {
+  let transactions: api.Transaction[] = []
+  for (let i = 0, l = chain.latestBlocks.length; i < l; i++) {
+    const block = chain.latestBlocks[i]
+    if (block && block.result && api.isOk(block.result)) {
+      const budget = maxNonBlockRows - transactions.length
+      transactions = transactions.concat(
+        block.result.data.transactions.slice(0, budget),
+      )
+
+      if (transactions.length >= maxNonBlockRows) {
+        break
+      }
+    }
+  }
+  return transactions
+}
+
+// Gets desired # of actions and returns early
+function getActions(chain: store.ChainState): api.ActionWithTransactionId[] {
+  let actions: api.ActionWithTransactionId[] = []
+  for (let i = 0, l = chain.latestBlocks.length; i < l; i++) {
+    const block = chain.latestBlocks[i]
+    if (block && block.result && api.isOk(block.result)) {
+      const data = block.result.data
+      for (let x = 0, y = data.transactions.length; x < y; x++) {
+        const transaction = data.transactions[x]
+        const budget = maxNonBlockRows - actions.length
+        actions = actions.concat(
+          api.getActionsInTransaction(transaction).slice(0, budget),
+        )
+
+        if (actions.length >= maxNonBlockRows) {
+          break
+        }
+      }
+    }
+  }
+  return actions
+}
+
+const Table: React.FC<{ url: URL; tab?: ChainTab }> = ({ url, tab }) => {
   const state = store.useSelector(store.getChainState)
 
   if (state) {
     if (api.isOk(state)) {
-      return <BlocksTable url={url} blocks={state.data.latestBlocks} />
+      switch (tab) {
+      case ChainTab.Transactions:
+        const transactions = getTransactions(state.data)
+        return <TransactionsTable url={url} transactions={transactions} />
+      case ChainTab.Actions:
+        const actions = getActions(state.data)
+        return <ActionsTable url={url} actions={actions} />
+      case ChainTab.Blocks:
+      default:
+        return <BlocksTable url={url} blocks={state.data.latestBlocks} />
+      }
     } else {
-      return <>Error</>
+      return (
+        <Grid item={true} xs={12}>
+          <Paper>
+            <Box p={10}>
+              <Typography variant='body2' color='error' align='center'>
+                Error fetching chain info
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
+      )
     }
   } else {
     return <>Loading</>
   }
 }
 
-const Component: React.FC<RouteComponentProps<{ hostname: string }>> = ({
+const Contents: React.FC<{ url: URL }> = ({ url }) => {
+  const [tab, setTab] = React.useState(ChainTab.Blocks)
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<{}>, newTab: ChainTab) => {
+      setTab(newTab)
+    },
+    [setTab],
+  )
+  return (
+    <>
+      <Grid item={true} xs={12}>
+        <Paper>
+          <Tabs value={tab} onChange={handleChange} variant='fullWidth'>
+            <Tab label='Blocks' />
+            <Tab label='Actions' />
+            <Tab label='Transactions' />
+          </Tabs>
+        </Paper>
+      </Grid>
+      <Grid item={true} xs={12}>
+        <Table url={url} tab={tab} />
+      </Grid>
+    </>
+  )
+}
+
+const Component: React.FC<RouteComponentProps<{ host: string }>> = ({
   match,
 }) => {
-  const hostname = match.params.hostname
-  const dispatch = store.useDispatch()
-  const preset = chainPresets.getByHostname(hostname)
-  const chainName = preset ? preset.name : 'Unknown Chain'
-  const avatar = preset ? <Avatar src={`/${preset.logo}`} /> : <></>
-
+  // Try to parse the URL
   let url: URL | void
   try {
-    url = new URL(`https://${hostname}`)
+    url = new URL(`https://${match.params.host}`)
   } catch (_) {
     // Ignore for now, show error message later
   }
 
+  // Start auto-playing blocks
+  const dispatch = store.useDispatch()
   useEffect(() => {
     if (url) {
       dispatch(store.createPlayBlocks(url))
@@ -81,58 +176,26 @@ const Component: React.FC<RouteComponentProps<{ hostname: string }>> = ({
     }
   }, [dispatch, url])
 
+  // Return early with errors
   if (!url) {
-    return <ErrorPage message={'Invalid Hostname'} />
+    return <ErrorPage message={'Invalid Host'} />
   }
 
+  const crumb = (
+    <>
+      Live <Hidden xsDown={true}>Transactions</Hidden>
+    </>
+  )
+
   return (
-    <Fade in={true}>
-      <Container maxWidth='md'>
-        <Grid container={true} justify='center' spacing={4}>
-          <Grid item={true}>
-            <Box pt={3}>
-              <Breadcrumbs>
-                <Link to={homeRoute()}>Home</Link>
-                <Link to={chainRoute(url.host)}>{chainName}</Link>
-                <Typography>Live</Typography>
-              </Breadcrumbs>
-            </Box>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Grid
-              container={true}
-              justify='center'
-              alignItems='center'
-              direction='column'
-            >
-              <Grid item={true}>
-                <Box pb={2}>{avatar}</Box>
-              </Grid>
-              <Grid item={true}>
-                <Typography variant='h5' align='center'>
-                  {chainName}
-                </Typography>
-                <Typography
-                  variant='subtitle1'
-                  color='textSecondary'
-                  align='center'
-                >
-                  {hostname}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item={true} xs={12}>
-            <Box pb={2}>
-              <Typography align='center'>
-                <AutoplayButton url={url} />
-              </Typography>
-            </Box>
-            <Table url={url} />
-          </Grid>
-        </Grid>
-      </Container>
-    </Fade>
+    <PageWrapper>
+      <PageHeader url={url} crumb={crumb}>
+        <AutoplayButton url={url} />
+      </PageHeader>
+      <PageBody>
+        <Contents url={url} />
+      </PageBody>
+    </PageWrapper>
   )
 }
 

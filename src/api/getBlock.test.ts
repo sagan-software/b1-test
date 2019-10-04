@@ -1,6 +1,5 @@
 import { getInfo } from './getInfo'
 import { mockFetchJson } from './testUtils'
-import { ResultType } from '../coreTypes'
 
 const serverUrl = new URL('https://api.eosnewyork.io')
 

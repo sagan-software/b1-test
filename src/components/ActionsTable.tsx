@@ -1,14 +1,101 @@
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Hidden,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@material-ui/core'
+import ReceiptIcon from '@material-ui/icons/Receipt'
 import React from 'react'
-import Paper from '@material-ui/core/Paper'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Link from './Link'
-import { accountRoute } from './Router'
 import * as api from '../api'
-import { Typography, Hidden } from '@material-ui/core'
+import * as store from '../store'
+import Link from './Link'
+import RicardianText from './RicardianText'
+import { accountRoute } from './Router'
+
+const RicardianDialog: React.FC<{
+  url: URL;
+  action: api.ActionWithTransactionId;
+}> = ({ url, action }) => {
+  const [open, setOpen] = React.useState(false)
+
+  const openDialog = React.useCallback(() => setOpen(true), [setOpen])
+  const closeDialog = React.useCallback(() => setOpen(false), [setOpen])
+  const selected = store.useSelector(store.getSelectedAccount)
+  const isSelected = selected && selected.name === action.account
+  const dispatch = store.useDispatch()
+
+  React.useEffect(() => {
+    if (open && !isSelected) {
+      dispatch(store.createSelectAccount(url, action.account))
+    }
+  }, [url, action.account, isSelected, dispatch, open])
+
+  let content
+  if (!selected || !selected.abi) {
+    content = 'Loading'
+  } else if (api.isErr(selected.abi)) {
+    content = 'Error fetching ABI'
+  } else if (!selected.abi.data.abi) {
+    content = 'Not a smart contract'
+  } else {
+    const abi = selected.abi.data.abi
+    for (let i = abi.actions.length; i--; ) {
+      const actionAbi = abi.actions[i]
+      if (actionAbi.name === action.name) {
+        if (actionAbi.ricardian_contract) {
+          content = (
+            <RicardianText
+              text={actionAbi.ricardian_contract}
+              data={action.data}
+            />
+          )
+        } else {
+          content = 'No ricardian contract'
+        }
+        break
+      }
+    }
+  }
+
+  return (
+    <>
+      <Tooltip title='View ricardian contract' placement='top-end'>
+        <IconButton size='small' onClick={openDialog}>
+          <ReceiptIcon />
+        </IconButton>
+      </Tooltip>
+      <Dialog
+        open={open}
+        onClose={closeDialog}
+        aria-labelledby='scroll-dialog-title'
+      >
+        <DialogTitle id='scroll-dialog-title'>
+          {action.account} / {action.name}
+        </DialogTitle>
+        <DialogContent dividers={true}>
+          <DialogContentText component='div'>{content}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color='primary'>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  )
+}
 
 const ActionRow: React.FC<{
   url: URL;
@@ -18,8 +105,8 @@ const ActionRow: React.FC<{
     const key = auth.actor + auth.permission
     return (
       <Typography noWrap={true} key={key} variant='body2'>
-        <Link to={accountRoute(url.host, auth.actor)}>{auth.actor}</Link>
-        <Hidden xsDown={true}> @ {auth.permission}</Hidden>
+        {auth.actor}
+        <Hidden smDown={true}> @ {auth.permission}</Hidden>
       </Typography>
     )
   })
@@ -27,16 +114,14 @@ const ActionRow: React.FC<{
     <TableRow>
       <Hidden xsDown={true}>
         <TableCell>
-          <Link to={accountRoute(url.host, action.account)}>
-            <Typography
-              noWrap={true}
-              style={{ maxWidth: 100 }}
-              variant='body2'
-              color='inherit'
-            >
-              {action.id}
-            </Typography>
-          </Link>
+          <Typography
+            noWrap={true}
+            style={{ maxWidth: 100 }}
+            variant='body2'
+            color='inherit'
+          >
+            {action.id}
+          </Typography>
         </TableCell>
       </Hidden>
       <TableCell>
@@ -45,9 +130,13 @@ const ActionRow: React.FC<{
         </Link>
       </TableCell>
       <TableCell>
-        <Link to={accountRoute(url.host, action.account)}>{action.name}</Link>
+        <Link to={accountRoute(url.host, action.account, action.name)}>
+          {action.name}
+        </Link>
       </TableCell>
-      <TableCell>{authorization}</TableCell>
+      <Hidden xsDown={true}>
+        <TableCell>{authorization}</TableCell>
+      </Hidden>
       <Hidden smDown={true}>
         <TableCell>
           <Typography noWrap={true} variant='body2' style={{ maxWidth: 150 }}>
@@ -55,6 +144,9 @@ const ActionRow: React.FC<{
           </Typography>
         </TableCell>
       </Hidden>
+      <TableCell>
+        <RicardianDialog url={url} action={action} />
+      </TableCell>
     </TableRow>
   )
 }
@@ -78,10 +170,13 @@ const ActionsTable: React.FC<{
             </Hidden>
             <TableCell>Contract</TableCell>
             <TableCell>Action</TableCell>
-            <TableCell>Authorization</TableCell>
+            <Hidden xsDown={true}>
+              <TableCell>Authorization</TableCell>
+            </Hidden>
             <Hidden smDown={true}>
               <TableCell>Data</TableCell>
             </Hidden>
+            <TableCell />
           </TableRow>
         </TableHead>
         <TableBody>{rows}</TableBody>

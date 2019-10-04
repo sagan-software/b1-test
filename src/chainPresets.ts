@@ -1,5 +1,4 @@
 import * as api from './api'
-import * as state from './store/state'
 
 export interface ChainPreset {
   readonly id: api.ChainId

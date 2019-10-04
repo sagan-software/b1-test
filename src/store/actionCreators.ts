@@ -22,6 +22,15 @@ export const createPushBlock = (
   block,
 })
 
+export const createSelectAccount = (
+  url: URL,
+  account: api.AccountName,
+): actions.SelectAccount => ({
+  type: actions.ActionType.SelectAccount,
+  url,
+  account,
+})
+
 export const createSelectBlock = (
   url: URL,
   num: api.BlockNum,
@@ -49,4 +58,13 @@ export const createSetSelectedBlock = (
   type: actions.ActionType.SetSelectedBlock,
   url,
   block,
+})
+
+export const createSetSelectedAccount = (
+  url: URL,
+  account: state.Account,
+): actions.SetSelectedAccount => ({
+  type: actions.ActionType.SetSelectedAccount,
+  url,
+  account,
 })

@@ -1,15 +1,16 @@
 {
-    "defaultSeverity": "error",
-    "extends": [
-        "@blockone/tslint-config-blockone/tslint-config",
-        "tslint-react",
-        "tslint-react-hooks"
-    ],
-    "jsRules": {},
-    "rules": {
-        "react-hooks-nesting": "error",
-        "no-any": true,
-        "no-unsafe-any": true
-    },
-    "rulesDirectory": []
+  "defaultSeverity": "error",
+  "extends": [
+    "@blockone/tslint-config-blockone/tslint-config",
+    "tslint-react",
+    "tslint-react-hooks"
+  ],
+  "jsRules": {},
+  "rules": {
+    "react-hooks-nesting": "error",
+    "no-any": true,
+    "no-unsafe-any": true,
+    "ordered-imports": true
+  },
+  "rulesDirectory": []
 }

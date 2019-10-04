@@ -1,5 +1,5 @@
 import * as api from '../api'
-import { State, ChainState, Block } from './state'
+import { State, ChainState, Block, Account } from './state'
 import * as chainPresets from '../chainPresets'
 
 export function getPreset(state: State): chainPresets.ChainPreset | void {}
@@ -15,6 +15,12 @@ export function getIsPlaying(state: State): boolean {
 export function getSelectedBlock(state: State): Block | void {
   if (state && api.isOk(state)) {
     return state.data.selectedBlock
+  }
+}
+
+export function getSelectedAccount(state: State): Account | void {
+  if (state && api.isOk(state)) {
+    return state.data.selectedAccount
   }
 }
 

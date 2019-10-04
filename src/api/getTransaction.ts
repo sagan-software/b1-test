@@ -9,25 +9,18 @@ export interface Transaction {
 }
 
 export interface Trx {
-  /** Transaction ID */
   readonly id: api.TransactionId
   readonly transaction: TransactionInner
 }
 
-/** Partial raw inner transaction data returned from `/v1/chain/get_block` endpoint */
 export interface TransactionInner {
   readonly expiration: string
-  /** Context-free actions included in this transaction */
   readonly context_free_actions: Action[]
-  /** Non-context-free actions included in this transaction */
   readonly actions: Action[]
 }
 
-/** Partial raw action data returned from `/v1/chain/get_block` endpoint */
 export interface Action {
-  /** Smart contract account name */
   readonly account: api.AccountName
-  /** Smart contract action name */
   readonly name: api.ActionName
   readonly data: object
   readonly hex_data: string
