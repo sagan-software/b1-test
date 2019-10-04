@@ -3,9 +3,10 @@ import createSagaMiddleware from 'redux-saga'
 import {
   useDispatch as useDispatchInner,
   useSelector as useSelectorInner,
+  useStore as useStoreInner,
 } from 'react-redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { Action } from './action'
+import { Action } from './actions'
 import { reducer } from './reducer'
 import { saga } from './saga'
 import { State } from './state'
@@ -31,8 +32,15 @@ export function useSelector<T>(
   return useSelectorInner(selector, equalityFn)
 }
 
-export * from './action'
+export function useStore(): Store<State, Action> {
+  return useStoreInner()
+}
+
+export function useState(): State {
+  return useSelector((s) => s)
+}
+
+export * from './actions'
 export * from './actionCreators'
-export * from './constants'
 export * from './selectors'
 export * from './state'

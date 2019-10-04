@@ -1,280 +1,143 @@
-import {
-  RemoteDataType,
-  remoteDataLoading,
-  remoteDataSuccess,
-  ResultType,
-  remoteDataFailure,
-  remoteDataDefault,
-} from '../coreTypes'
-import { BlockNum } from '../api'
+import * as api from '../api'
 import {
   Action,
   ActionType,
-  GetInfoAction,
-  SetInfoAction,
-  GetBlockAction,
-  SetBlockAction,
-  GetAbiAction,
-  SetAbiAction,
-  SetThemeAction,
-  IncrementHeadBlockNumAction,
-  DelBlockAction,
-  SetAutoplayAction,
-} from './action'
-import * as selectors from './selectors'
-import { defaultState } from './constants'
-import { State, ChainErrorType } from './state'
+  PlayBlocks,
+  PauseBlocks,
+  PushBlock,
+  SetInfo,
+  SetSelectedAccount,
+  SetSelectedBlock,
+  SelectAccount,
+  SelectBlock,
+} from './actions'
+import { State, ChainState } from './state'
+import { getBlock } from './selectors'
 
-export function reducer(
-  state: Readonly<State> = defaultState,
-  action: Readonly<Action>,
-): Readonly<State> {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
-  case ActionType.IncrementHeadBlockNum:
-    return onIncrementHeadBlockNum(state, action)
-  case ActionType.SetAutoplay:
-    return onSetAutoplay(state, action)
-  case ActionType.GetInfo:
-    return onGetInfo(state, action)
+  case ActionType.PlayBlocks:
+    return onPlayBlocks(state, action)
+  case ActionType.PauseBlocks:
+    return onPauseBlocks(state, action)
+  case ActionType.PushBlock:
+    return onPushBlock(state, action)
+  case ActionType.SelectAccount:
+    return onSelectAccount(state, action)
+  case ActionType.SelectBlock:
+    return onSelectBlock(state, action)
   case ActionType.SetInfo:
     return onSetInfo(state, action)
-  case ActionType.GetBlock:
-    return onGetBlock(state, action)
-  case ActionType.SetBlock:
-    return onSetBlock(state, action)
-  case ActionType.DelBlock:
-    return onDelBlock(state, action)
-  case ActionType.GetAbi:
-    return onGetAbi(state, action)
-  case ActionType.SetAbi:
-    return onSetAbi(state, action)
-  case ActionType.SetTheme:
-    return onSetTheme(state, action)
+  case ActionType.SetSelectedAccount:
+    return onSetSelectedAccount(state, action)
+  case ActionType.SetSelectedBlock:
+    return onSetSelectedBlock(state, action)
   default:
     return state
   }
 }
 
-function onGetInfo(
-  state: Readonly<State>,
-  { hostname, chainId }: Readonly<GetInfoAction>,
-): Readonly<State> {
-  // Check if hostname input is the same
-  const previousRpcHostname = selectors.getRpcHostnameInput(state)
-  if (previousRpcHostname === hostname) {
-    return state
-  }
-
-  // Check if the hostname is valid
-  let rpcUrl: URL
-  try {
-    rpcUrl = new URL(`https://${hostname}`)
-  } catch (_) {
-    return {
-      ...state,
-      rpcHostnameInput: hostname,
-      chain: remoteDataFailure({
-        type: ChainErrorType.InvalidUrl,
-      }),
-    }
-  }
-
-  // Check if the URL is the same
-  const previousRpcUrl = selectors.getRpcUrl(state)
-  if (previousRpcUrl === rpcUrl) {
-    return state
-  }
-
-  return {
-    ...state,
-    rpcHostnameInput: hostname,
-    chain: remoteDataLoading({
-      rpcUrl,
-      chainId,
-    }),
-  }
+function hasSameUrl(state: api.ResultOk<ChainState>, url: URL): boolean {
+  return state.data.url.hostname === url.hostname
 }
 
-function onIncrementHeadBlockNum(
-  state: Readonly<State>,
-  _: Readonly<IncrementHeadBlockNumAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const lastBlockNum = (state.chain.data.headBlockNum as unknown) as number
-    const headBlockNum = (lastBlockNum + 1) as BlockNum
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        headBlockNum,
-      }),
-    }
-  } else {
-    return state
+function onPlayBlocks(state: State, { url }: PlayBlocks): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
+    return api.resultOk({
+      ...state.data,
+      isPlaying: true,
+    })
   }
+  console.log('RESETING STATE')
+  // If the new URL is different from the old one then we return a blank state
 }
 
-function onSetAutoplay(
-  state: Readonly<State>,
-  { autoplay }: Readonly<SetAutoplayAction>,
-): Readonly<State> {
-  return {
-    ...state,
-    autoplay,
+function onPauseBlocks(state: State, action: PauseBlocks): State {
+  if (state && api.isOk(state)) {
+    return api.resultOk({
+      ...state.data,
+      isPlaying: false,
+    })
   }
+  return state
 }
 
-function onSetInfo(
-  state: Readonly<State>,
-  { info }: Readonly<SetInfoAction>,
-): Readonly<State> {
-  const rpcUrl = selectors.getRpcUrl(state)
-  if (!rpcUrl) {
-    return state
-  }
-  switch (info.type) {
-  case ResultType.Ok:
-    return {
-        ...state,
-        chain: remoteDataSuccess({
-          rpcUrl,
-          chainId: info.data.chainId,
-          headBlockNum: info.data.headBlockNum,
-          blocks: {},
-          abis: {},
-        }),
+function onPushBlock(state: State, { url, num, block }: PushBlock): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
+    const data = { ...state.data }
+
+    // Check if we already have this block
+    for (let i = data.latestBlocks.length; i--; ) {
+      const existing = data.latestBlocks[i]
+      if (existing.num === num) {
+        return state
       }
-  case ResultType.Err:
-    return {
-        ...state,
-        chain: {
-          type: RemoteDataType.Failure,
-          data: {
-            type: ChainErrorType.GetInfoError,
-            rpcUrl,
-            chainId: selectors.getChainId(state),
-          },
-        },
-      }
+    }
+
+    data.latestBlocks.unshift({ num, result: block })
+    if (data.latestBlocks.length > 10) {
+      data.latestBlocks.pop()
+    }
+    return api.resultOk(data)
   }
 }
 
-function onGetBlock(
-  state: Readonly<State>,
-  { blockNum }: Readonly<GetBlockAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const key = (blockNum as unknown) as number
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        blocks: {
-          ...state.chain.data.blocks,
-          [key]: remoteDataLoading(),
-        },
-      }),
-    }
-  } else {
+function onSelectAccount(state: State, { url, account }: SelectAccount): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
     return state
   }
 }
 
-function onSetBlock(
-  state: Readonly<State>,
-  { blockNum, block }: Readonly<SetBlockAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const key = (blockNum as unknown) as number
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        blocks: {
-          ...state.chain.data.blocks,
-          [key]:
-            block.type === ResultType.Ok
-              ? remoteDataSuccess(block.data)
-              : remoteDataFailure(block.error),
-        },
-      }),
+function onSelectBlock(state: State, { url, num }: SelectBlock): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
+    const block = getBlock(state, num)
+    if (block) {
+      return api.resultOk({
+        ...state.data,
+        selectedBlock: { num, result: block },
+      })
     }
-  } else {
     return state
   }
+  // If the new URL is different from the old one then we return a blank state
 }
 
-function onDelBlock(
-  state: Readonly<State>,
-  { blockNum }: Readonly<DelBlockAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const key = (blockNum as unknown) as number
-    const blocks = { ...state.chain.data.blocks }
-    delete blocks[key]
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        blocks,
-      }),
-    }
-  } else {
-    return state
+function onSetInfo(state: State, { url, info, isPlaying }: SetInfo): State {
+  if (api.isOk(info)) {
+    const data =
+      state && api.isOk(state) && hasSameUrl(state, url)
+        ? {
+          ...state.data,
+          info: info.data,
+          isPlaying,
+        }
+        : {
+          url,
+          info: info.data,
+          isPlaying,
+          latestBlocks: [],
+          selectedBlock: undefined,
+          selectedAccount: undefined,
+        }
+    return api.resultOk(data)
   }
+  return info
 }
 
-function onGetAbi(
-  state: Readonly<State>,
-  { account }: Readonly<GetAbiAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const key = (account as unknown) as string
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        abi: {
-          ...state.chain.data.abis,
-          [key]: remoteDataLoading(),
-        },
-      }),
-    }
-  } else {
-    return state
-  }
-}
+function onSetSelectedAccount(
+  state: State,
+  action: SetSelectedAccount,
+): State {}
 
-function onSetAbi(
-  state: Readonly<State>,
-  { account, abi }: Readonly<SetAbiAction>,
-): Readonly<State> {
-  if (state.chain.type === RemoteDataType.Success) {
-    const key = (account as unknown) as number
-    return {
-      ...state,
-      chain: remoteDataSuccess({
-        ...state.chain.data,
-        abis: {
-          ...state.chain.data.abis,
-          [key]:
-            abi.type === ResultType.Ok
-              ? remoteDataSuccess(abi.data)
-              : remoteDataFailure(abi.error),
-        },
-      }),
-    }
-  } else {
-    return state
+function onSetSelectedBlock(
+  state: State,
+  { url, block }: SetSelectedBlock,
+): State {
+  if (state && api.isOk(state) && hasSameUrl(state, url)) {
+    return api.resultOk({
+      ...state.data,
+      selectedBlock: block,
+    })
   }
-}
-
-function onSetTheme(
-  state: Readonly<State>,
-  { theme }: Readonly<SetThemeAction>,
-): Readonly<State> {
-  return {
-    ...state,
-    theme,
-  }
+  return state
 }

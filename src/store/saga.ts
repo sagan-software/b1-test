@@ -1,78 +1,75 @@
-import {
-  delay,
-  fork,
-  put,
-  actionChannel,
-  cancel,
-  race,
-} from 'redux-saga/effects'
-import { call, take, select } from 'typed-redux-saga'
+import { put, delay, fork, cancel } from 'redux-saga/effects'
+import { take, call, cancelled, select } from 'typed-redux-saga'
 import * as api from '../api'
+import { ActionType, PlayBlocks, SelectAccount, SelectBlock } from './actions'
 import {
-  ActionType,
-  GetInfoAction,
-  GetBlockAction,
-  GetAbiAction,
-  DelBlockAction,
-} from './action'
-import { setInfoAction, setBlockAction, setAbiAction } from './actionCreators'
-import * as selectors from './selectors'
-import { RemoteDataType } from '../coreTypes'
-import { BlockNum, AccountName } from '../api'
-import { Task } from 'redux-saga'
+  createSetInfo,
+  createPushBlock,
+  createSetSelectedBlock,
+} from './actionCreators'
+import { getBlock, getSelectedBlock, getUrl, getInfo } from './selectors'
 
 export function* saga() {
   while (true) {
-    const rpcUrl = yield* select(selectors.getRpcUrl)
-    let task: Task | void
-    if (rpcUrl) {
-      task = yield fork(rpcFlow, rpcUrl)
-    }
-
-    yield* take<GetInfoAction>(ActionType.GetInfo)
-    if (task) {
-      yield cancel(task)
-    }
-  }
-}
-
-function* rpcFlow(rpcUrl: Readonly<URL>) {
-  yield* getInfo(rpcUrl)
-  const chain = yield* select(selectors.getChain)
-  if (chain.type === RemoteDataType.Success) {
-    const rpcActionChannel = yield actionChannel([
-      ActionType.GetBlock,
-      ActionType.GetAbi,
+    const action = yield* take<PlayBlocks | SelectAccount | SelectBlock>([
+      ActionType.PlayBlocks,
+      ActionType.SelectAccount,
+      ActionType.SelectBlock,
     ])
-    while (true) {
-      const action = yield* take<GetBlockAction | GetAbiAction>(
-        rpcActionChannel,
-      )
-      switch (action.type) {
-      case ActionType.GetBlock:
-        yield call(getBlock, rpcUrl, action.blockNum)
-        break
-      case ActionType.GetAbi:
-          // TODO
-        yield call(getAbi, rpcUrl, action.account)
-        break
-      }
-      yield delay(150)
+
+    switch (action.type) {
+    case ActionType.PlayBlocks:
+      yield* onPlayBlocks(action)
+      break
+    case ActionType.SelectBlock:
+      yield* onSelectBlock(action)
+      break
     }
   }
 }
 
-function* getInfo(rpcUrl: Readonly<URL>) {
-  const result = yield* call(api.getInfo, rpcUrl)
-  yield put(setInfoAction(result))
+function* onPlayBlocks({ url }: PlayBlocks) {
+  const info = yield* call(api.getInfo, url)
+  yield put(createSetInfo(url, info, true))
+
+  if (info.type === api.ResultType.Err) {
+    return
+  }
+
+  const task = yield fork(playBlocksFlow, url, info.data.head_block_num)
+  yield* take(ActionType.PauseBlocks)
+  yield cancel(task)
 }
 
-function* getBlock(rpcUrl: Readonly<URL>, blockNum: Readonly<BlockNum>) {
-  const result = yield* call(api.getBlock, rpcUrl, blockNum)
-  yield put(setBlockAction(blockNum, result))
+export function* playBlocksFlow(url: URL, headBlockNum: api.BlockNum) {
+  const controller = new AbortController()
+  try {
+    while (true) {
+      const block = yield* call(
+        api.getBlock,
+        url,
+        headBlockNum,
+        controller.signal,
+      )
+      yield put(createPushBlock(url, headBlockNum, block))
+      yield delay(500)
+      headBlockNum++
+    }
+  } finally {
+    controller.abort()
+  }
 }
 
-function* getAbi(rpcUrl: Readonly<URL>, account: Readonly<AccountName>) {
-  const result = yield* call(api.getAbi, rpcUrl, account)
-  yield put(setAbiAction(account, result))
+function* onSelectBlock({ url, num }: SelectBlock) {
+  const block = yield* select(getSelectedBlock)
+  if (!block) {
+    const info = yield* select(getInfo)
+    if (!info) {
+      const info = yield* call(api.getInfo, url)
+      yield put(createSetInfo(url, info, false))
+    }
+
+    const result = yield* call(api.getBlock, url, num)
+    yield put(createSetSelectedBlock(url, { num, result }))
+  }
 }

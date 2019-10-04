@@ -1,50 +1,24 @@
-import { resultOk, resultErr } from '../coreTypes'
-import {
-  BlockId,
-  BlockNum,
-  AccountName,
-  TransactionId,
-  ActionName,
-  RpcErrorType,
-  RpcResult,
-  RawError,
-} from './rpcTypes'
+import * as api from './types'
 import {
   Transaction,
-  RawTransaction,
-  TransactionType,
-  isDeferred,
-  convertRawTransaction,
   getNumActionsInTransaction,
+  getActionsInTransaction,
+  ActionWithTransactionId,
 } from './getTransaction'
 // import { addJsonSchema, validateJsonSchema } from './jsonSchema'
 
 /** Partial raw data returned from `/v1/chain/get_block` endpoint */
-export interface RawBlock {
+export interface Block {
   /** Hash of the block */
-  readonly id: BlockId
+  readonly id: api.BlockId
   /** Number of the block */
-  readonly block_num: BlockNum
+  readonly block_num: api.BlockNum
   /** Block producer */
-  readonly producer: AccountName
+  readonly producer: api.AccountName
   /** UTC time when the block was produced */
   readonly timestamp: string
   /** Transactions included in this block */
-  readonly transactions: ReadonlyArray<RawTransaction>
-}
-
-/** Minimal block data needed for our application */
-export interface Block {
-  /** Hash of the block */
-  readonly id: BlockId
-  /** Number of the block */
-  readonly blockNum: BlockNum
-  /** Block producer */
-  readonly producer: AccountName
-  /** UTC time when the block was produced */
-  readonly timestamp: Date
-  /** Transactions included in this block */
-  readonly transactions: ReadonlyArray<Transaction>
+  readonly transactions: Transaction[]
 }
 
 // addJsonSchema('RawBlock', {
@@ -60,9 +34,9 @@ export interface Block {
 
 export async function getBlock(
   serverUrl: Readonly<URL>,
-  blockNum: Readonly<BlockNum>,
+  blockNum: Readonly<api.BlockNum>,
   signal?: AbortSignal,
-): Promise<RpcResult<Block>> {
+): Promise<api.Result<Block>> {
   const url = new URL('/v1/chain/get_block', serverUrl)
   // TODO abort controllers
   // TODO make a HEAD call to check for CORS headers
@@ -77,33 +51,23 @@ export async function getBlock(
       signal,
     })
   } catch (e) {
-    return resultErr({ type: RpcErrorType.BadStatus, status: 0 }) // TODO this is wrong
+    return api.resultErr({ type: api.RpcErrorType.BadStatus, status: 0 }) // TODO this is wrong
   }
 
   let json: any
   try {
     json = await res.json()
   } catch (e) {
-    return resultErr({ type: RpcErrorType.InvalidJson })
+    return api.resultErr({ type: api.RpcErrorType.InvalidJson })
   }
 
-  // TODO validate json schema
-  const raw = json as RawBlock
-
-  try {
-    return resultOk({
-      id: raw.id,
-      blockNum: raw.block_num,
-      producer: raw.producer,
-      timestamp: new Date(`${raw.timestamp}Z`),
-      transactions: raw.transactions.map(convertRawTransaction),
+  if ('error' in json || 'code' in json) {
+    return api.resultErr({
+      type: api.RpcErrorType.UnexpectedData,
+      error: json as api.RawError,
     })
-  } catch (e) {
-    // TODO do this better
-    return resultErr({
-      type: RpcErrorType.UnexpectedData,
-      error: json as RawError,
-    })
+  } else {
+    return api.resultOk(json as Block)
   }
 }
 
@@ -111,4 +75,13 @@ export function getNumActionsInBlock(block: Block): number {
   return block.transactions.reduce((sum: number, transaction) => {
     return sum + getNumActionsInTransaction(transaction)
   }, 0)
+}
+
+export function getActionsInBlock(block: Block): ActionWithTransactionId[] {
+  return block.transactions.reduce(
+    (actions: ActionWithTransactionId[], transaction) => {
+      return actions.concat(getActionsInTransaction(transaction))
+    },
+    [],
+  )
 }

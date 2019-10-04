@@ -1,101 +1,85 @@
-import { AccountName, ActionName, TransactionId } from './rpcTypes'
-
-/** Minimal transaction data needed for our application */
-export type Transaction = StandardTransaction | DeferredTransaction
-
-/** Transaction union type tag */
-export enum TransactionType {
-  Standard = 'STANDARD',
-  Deferred = 'DEFERRED',
-}
-
-/** Minimal standard transaction data needed for our application */
-export interface StandardTransaction {
-  /** Union type tag */
-  readonly type: TransactionType.Standard
-  /** Transaction ID */
-  readonly id: Readonly<TransactionId>
-  /** Context-free actions included in this transaction */
-  readonly contextFreeActions: ReadonlyArray<Action>
-  /** Non-context-free actions included in this transaction */
-  readonly actions: ReadonlyArray<Action>
-}
-
-/** Minimal action data needed for our application */
-export interface Action {
-  /** Smart contract account name */
-  readonly account: AccountName
-  /** Smart contract action name */
-  readonly name: ActionName
-}
-
-/** Minimal deferred transaction data needed for our application */
-export interface DeferredTransaction {
-  /** Union type tag */
-  readonly type: TransactionType.Deferred
-  /** ID of the deferred transaction */
-  readonly id: TransactionId
-}
+import * as api from './types'
 
 /** Partial raw transaction data returned from `/v1/chain/get_block` endpoint */
-export interface RawTransaction {
-  readonly trx: TransactionId | Readonly<RawTrx>
+export interface Transaction {
+  readonly status: string
+  readonly cpu_usage_us: number
+  readonly net_usage_words: number
+  readonly trx: api.TransactionId | Trx
 }
 
-export interface RawTrx {
+export interface Trx {
   /** Transaction ID */
-  readonly id: Readonly<TransactionId>
-  readonly transaction: RawTransactionInner
+  readonly id: api.TransactionId
+  readonly transaction: TransactionInner
 }
 
 /** Partial raw inner transaction data returned from `/v1/chain/get_block` endpoint */
-export interface RawTransactionInner {
+export interface TransactionInner {
+  readonly expiration: string
   /** Context-free actions included in this transaction */
-  readonly context_free_actions: ReadonlyArray<RawAction>
+  readonly context_free_actions: Action[]
   /** Non-context-free actions included in this transaction */
-  readonly actions: ReadonlyArray<RawAction>
+  readonly actions: Action[]
 }
 
 /** Partial raw action data returned from `/v1/chain/get_block` endpoint */
-export interface RawAction {
+export interface Action {
   /** Smart contract account name */
-  readonly account: AccountName
+  readonly account: api.AccountName
   /** Smart contract action name */
-  readonly name: ActionName
+  readonly name: api.ActionName
+  readonly data: object
+  readonly hex_data: string
+  readonly authorization: Authorization[]
+}
+
+export interface Authorization {
+  readonly actor: api.AccountName
+  readonly permission: api.PermissionName
+}
+
+export interface ActionWithTransactionId extends Action {
+  readonly id: api.TransactionId
 }
 
 export function isDeferred(
-  trx: TransactionId | Readonly<RawTrx>,
-): trx is TransactionId {
+  trx: api.TransactionId | Trx,
+): trx is api.TransactionId {
   return typeof trx === 'string' || trx instanceof String
 }
 
-export function convertRawTransaction({ trx }: RawTransaction): Transaction {
+export function getTransactionId({ trx }: Transaction): api.TransactionId {
   if (isDeferred(trx)) {
-    return {
-      type: TransactionType.Deferred,
-      id: trx,
-    }
+    return trx
   } else {
-    return {
-      type: TransactionType.Standard,
-      id: trx.id,
-      contextFreeActions: trx.transaction.context_free_actions.map((action) => ({
-        account: action.account,
-        name: action.name,
-      })),
-      actions: trx.transaction.actions.map((action) => ({
-        account: action.account,
-        name: action.name,
-      })),
-    }
+    return trx.id
   }
 }
 
-export function getNumActionsInTransaction(transaction: Transaction): number {
-  if (transaction.type === TransactionType.Standard) {
-    return transaction.contextFreeActions.length + transaction.actions.length
+export function getNumActionsInTransaction({ trx }: Transaction): number {
+  if (!isDeferred(trx)) {
+    return (
+      trx.transaction.context_free_actions.length +
+      trx.transaction.actions.length
+    )
   } else {
     return 0
+  }
+}
+
+export function getActionsInTransaction({
+  trx,
+}: Transaction): ActionWithTransactionId[] {
+  if (!isDeferred(trx)) {
+    const id = trx.id
+    return trx.transaction.actions
+      .concat(trx.transaction.context_free_actions)
+      .map((action) => ({
+        ...action,
+        id,
+      }))
+  } else {
+    return []
   }
 }

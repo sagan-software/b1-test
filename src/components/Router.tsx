@@ -6,13 +6,13 @@ export type RouteParams =
   | HomeRouteParams
   | ChainRouteParams
   | BlockRouteParams
-  | RicardianRouteParams
+  | AccountRouteParams
 
 export enum RouteType {
   Home = 'HOME',
   Chain = 'CHAIN',
   Block = 'BLOCK',
-  Ricardian = 'RICARDIAN',
+  Account = 'ACCOUNT',
 }
 
 export interface HomeRouteParams {
@@ -24,41 +24,61 @@ export const homeRoute = (): HomeRouteParams => ({ type: RouteType.Home })
 export interface ChainRouteParams {
   readonly type: RouteType.Chain
   readonly hostname: string
+  readonly tab: ChainTab | void
 }
 
-export const chainRoute = (hostname: string): ChainRouteParams => ({
+export enum ChainTab {
+  Blocks = 'BLOCKS',
+  Actions = 'ACTIONS',
+  Transactions = 'TRANSACTIONS',
+}
+
+export const chainRoute = (
+  hostname: string,
+  tab?: ChainTab,
+): ChainRouteParams => ({
   type: RouteType.Chain,
   hostname,
+  tab,
 })
 
 export interface BlockRouteParams {
   readonly type: RouteType.Block
   readonly hostname: string
-  readonly blockNum: Readonly<BlockNum>
+  readonly blockNum: BlockNum
+  readonly tab: BlockTab | void
+}
+
+export enum BlockTab {
+  Actions = 'ACTIONS',
+  Transactions = 'TRANSACTIONS',
+  Raw = 'RAW',
 }
 
 export const blockRoute = (
   hostname: string,
-  blockNum: Readonly<BlockNum>,
+  blockNum: BlockNum,
+  tab?: BlockTab,
 ): BlockRouteParams => ({
   type: RouteType.Block,
   hostname,
   blockNum,
+  tab,
 })
 
-export interface RicardianRouteParams {
-  readonly type: RouteType.Ricardian
+export interface AccountRouteParams {
+  readonly type: RouteType.Account
   readonly hostname: string
   readonly account: string
   readonly action?: string | void
 }
 
-export const ricardianRoute = (
+export const accountRoute = (
   hostname: string,
   account: AccountName,
   action?: ActionName | void,
-): RicardianRouteParams => ({
-  type: RouteType.Ricardian,
+): AccountRouteParams => ({
+  type: RouteType.Account,
   hostname,
   account,
   action,
@@ -72,7 +92,7 @@ export function getRouteTemplate(routeType: RouteType): string {
     return '/:hostname'
   case RouteType.Block:
     return '/:hostname/block/:blockNum'
-  case RouteType.Ricardian:
+  case RouteType.Account:
     return '/:hostname/account/:account'
   }
 }
@@ -85,7 +105,7 @@ export function getRouteString(route: RouteParams): string {
     return `/${route.hostname}`
   case RouteType.Block:
     return `/${route.hostname}/block/${route.blockNum}`
-  case RouteType.Ricardian:
+  case RouteType.Account:
     const hash = route.action ? `#${route.action}` : ''
     return `/${route.hostname}/account/${route.account}${hash}`
   }

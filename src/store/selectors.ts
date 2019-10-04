@@ -1,127 +1,53 @@
-import {
-  RpcError,
-  Block,
-  ChainId,
-  BlockNum,
-  RawAbi,
-  AccountName,
-} from '../api'
-import { RemoteData, getData, RemoteDataType } from '../coreTypes'
-import { chainPresets } from './constants'
-import { State, ChainPreset, Theme, Chain, ChainData } from './state'
+import * as api from '../api'
+import { State, ChainState, Block } from './state'
+import * as chainPresets from '../chainPresets'
 
-export function getRpcHostnameInput(state: Readonly<State>): Readonly<string> {
-  return state.rpcHostnameInput
+export function getPreset(state: State): chainPresets.ChainPreset | void {}
+
+export function getChainState(state: State): api.Result<ChainState> | void {
+  return state
 }
 
-export function getAutoplay(state: Readonly<State>): boolean {
-  return state.autoplay
+export function getIsPlaying(state: State): boolean {
+  return state && api.isOk(state) ? state.data.isPlaying : false
 }
 
-export function getChain(state: Readonly<State>): Readonly<Chain> {
-  return state.chain
-}
-
-export function getChainData(
-  state: Readonly<State>,
-): Readonly<ChainData> | void {
-  const chain = getChain(state)
-  if (chain) {
-    return getData(chain)
-  }
-}
-
-export function getChainId(state: Readonly<State>): Readonly<ChainId> | void {
-  const chainData = getChainData(state)
-  if (chainData) {
-    return chainData.chainId
-  }
-}
-
-export function getRpcUrl(state: Readonly<State>): Readonly<URL> | void {
-  const chainData = getChainData(state)
-  if (chainData) {
-    return chainData.rpcUrl
-  }
-}
-
-// export function getInfo(
-//   state: Readonly<State>,
-// ): Readonly<RemoteData<Info, RpcError>> | void{
-//   return state.info
-// }
-
-// export function getInfoData(state: Readonly<State>): Readonly<Info> | void {
-//   const info = getInfo(state)
-//   if (info) {
-//     return getData(info)
-//   }
-// }
-
-export function getBlocks(
-  state: Readonly<State>,
-): Readonly<{
-  readonly [blockNum: number]: RemoteData<Block, RpcError>;
-}> | void {
-  const chain = getChain(state)
-  if (chain.type === RemoteDataType.Success) {
-    return chain.data.blocks
+export function getSelectedBlock(state: State): Block | void {
+  if (state && api.isOk(state)) {
+    return state.data.selectedBlock
   }
 }
 
 export function getBlock(
-  state: Readonly<State>,
-  blockNum: Readonly<BlockNum>,
-): Readonly<RemoteData<Block, RpcError>> | void {
-  const blocks = getBlocks(state)
-  if (blocks) {
-    return blocks[(blockNum as unknown) as number]
-  }
-}
-
-export function getAbis(
-  state: Readonly<State>,
-): Readonly<{
-  readonly [account: string]: RemoteData<RawAbi, RpcError>;
-}> | void {
-  const chain = getChain(state)
-  if (chain.type === RemoteDataType.Success) {
-    return chain.data.abis
-  }
-}
-
-export function getAbi(
-  state: Readonly<State>,
-  account: Readonly<AccountName>,
-): Readonly<RemoteData<RawAbi, RpcError>> | void {
-  const abis = getAbis(state)
-  if (abis) {
-    return abis[(account as unknown) as string]
-  }
-}
-
-export function getChainPreset(
-  state: Readonly<State>,
-): Readonly<ChainPreset> | void {
-  const chainId = getChainId(state)
-  if (chainId) {
-    for (let i = chainPresets.length; i--; ) {
-      const chainPreset = chainPresets[i]
-      if (chainPreset.id === chainId) {
-        return chainPreset
-      }
+  state: State,
+  num: api.BlockNum,
+): api.Result<api.Block> | void {
+  if (state && api.isOk(state)) {
+    // First see if it's selected
+    const selected = state.data.selectedBlock
+    if (selected && selected.num === num) {
+      return selected.result
     }
-  } else {
-    const hostname = state.rpcHostnameInput
-    for (let i = chainPresets.length; i--; ) {
-      const chainPreset = chainPresets[i]
-      if (chainPreset.defaultHostname === hostname) {
-        return chainPreset
+
+    // Look in the latest blocks
+    const latest = state.data.latestBlocks
+    for (let i = latest.length; i--; ) {
+      const block = latest[i]
+      if (block.num === num) {
+        return block.result
       }
     }
   }
 }
 
-export function getTheme(state: Readonly<State>): Readonly<Theme> {
-  return state.theme
+export function getUrl(state: State): URL | void {
+  if (state && api.isOk(state)) {
+    return state.data.url
+  }
+}
+
+export function getInfo(state: State): api.Info | void {
+  if (state && api.isOk(state)) {
+    return state.data.info
+  }
 }

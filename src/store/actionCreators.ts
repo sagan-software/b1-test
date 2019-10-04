@@ -1,98 +1,52 @@
-import {
-  RpcResult,
-  Info,
-  Block,
-  ChainId,
-  BlockNum,
-  AccountName,
-  RawAbi,
-} from '../api'
-import {
-  ActionType,
-  IncrementHeadBlockNumAction,
-  GetInfoAction,
-  SetInfoAction,
-  GetBlockAction,
-  SetBlockAction,
-  DelBlockAction,
-  SetAutoplayAction,
-  SetThemeAction,
-  SetAbiAction,
-  GetAbiAction,
-} from './action'
-import { Theme } from './state'
+import * as api from '../api'
+import * as actions from './actions'
+import * as state from './state'
 
-export const incrementBlockNumAction = (): Readonly<
-  IncrementHeadBlockNumAction
-> => ({
-  type: ActionType.IncrementHeadBlockNum,
+export const createPlayBlocks = (url: URL): actions.PlayBlocks => ({
+  type: actions.ActionType.PlayBlocks,
+  url,
 })
 
-export const setAutoplayAction = (
-  autoplay: boolean,
-): Readonly<SetAutoplayAction> => ({
-  type: ActionType.SetAutoplay,
-  autoplay,
+export const createPauseBlocks = (): actions.PauseBlocks => ({
+  type: actions.ActionType.PauseBlocks,
 })
 
-export const getInfoAction = (
-  hostname: string,
-  chainId?: ChainId | void,
-): Readonly<GetInfoAction> => ({
-  type: ActionType.GetInfo,
-  hostname,
-  chainId,
-})
-
-export const setInfoAction = (
-  info: Readonly<RpcResult<Info>>,
-): Readonly<SetInfoAction> => ({
-  type: ActionType.SetInfo,
-  info,
-})
-
-export const getBlockAction = (
-  blockNum: Readonly<BlockNum>,
-): Readonly<GetBlockAction> => ({
-  type: ActionType.GetBlock,
-  blockNum,
-})
-
-export const setBlockAction = (
-  blockNum: Readonly<BlockNum>,
-  block: Readonly<RpcResult<Block>>,
-): Readonly<SetBlockAction> => ({
-  type: ActionType.SetBlock,
-  blockNum,
+export const createPushBlock = (
+  url: URL,
+  num: api.BlockNum,
+  block: api.Result<api.Block>,
+): actions.PushBlock => ({
+  type: actions.ActionType.PushBlock,
+  url,
+  num,
   block,
 })
 
-export const delBlockAction = (
-  blockNum: Readonly<BlockNum>,
-): Readonly<DelBlockAction> => ({
-  type: ActionType.DelBlock,
-  blockNum,
+export const createSelectBlock = (
+  url: URL,
+  num: api.BlockNum,
+): actions.SelectBlock => ({
+  type: actions.ActionType.SelectBlock,
+  url,
+  num,
 })
 
-export const getAbiAction = (
-  account: Readonly<AccountName>,
-): Readonly<GetAbiAction> => ({
-  type: ActionType.GetAbi,
-  account,
+export const createSetInfo = (
+  url: URL,
+  info: api.Result<api.Info>,
+  isPlaying: boolean,
+): actions.SetInfo => ({
+  type: actions.ActionType.SetInfo,
+  url,
+  info,
+  isPlaying,
 })
 
-export const setAbiAction = (
-  account: Readonly<AccountName>,
-  abi: Readonly<RpcResult<RawAbi>>,
-): Readonly<SetAbiAction> => ({
-  type: ActionType.SetAbi,
-  account,
-  abi,
-})
-
-export const setThemeAction = (
-  theme: Readonly<Theme>,
-): Readonly<SetThemeAction> => ({
-  type: ActionType.SetTheme,
-  theme,
+export const createSetSelectedBlock = (
+  url: URL,
+  block: state.Block,
+): actions.SetSelectedBlock => ({
+  type: actions.ActionType.SetSelectedBlock,
+  url,
+  block,
 })
