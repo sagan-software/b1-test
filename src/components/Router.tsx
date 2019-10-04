@@ -2,6 +2,8 @@ import React from 'react'
 import { Link as LinkInner } from 'react-router-dom'
 import * as api from '../api'
 
+export { HashRouter as Router, Route, Switch } from 'react-router-dom'
+
 export type RouteParams =
   | HomeRouteParams
   | ChainRouteParams
@@ -132,8 +134,6 @@ export function getRouteString(route: RouteParams): string {
 export function toHashId(str: string): string {
   return str.toLowerCase().replace(/[\W\s]+/g, '-')
 }
-
-export { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
 export const Link: React.FC<{
   readonly to: Readonly<RouteParams>;
