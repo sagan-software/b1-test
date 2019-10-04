@@ -1,4 +1,13 @@
-import * as api from './api'
+import * as api from '../api'
+import bosLogo from './bos.png'
+import eosLogo from './eos.jpg'
+import jungleLogo from './jungle.png'
+import kylinLogo from './kylin.webp'
+import lynxLogo from './lynx.jpg'
+import meetoneLogo from './meetone.png'
+import telosLogo from './telos.png'
+import waxLogo from './wax.png'
+import worbliLogo from './worbli.jpg'
 
 export interface ChainPreset {
   readonly id: api.ChainId
@@ -18,7 +27,7 @@ export const eosMainnet: ChainPreset = {
   name: 'EOS Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://api.eosnewyork.io'),
-  logo: 'eos.jpg',
+  logo: eosLogo,
 }
 
 export const telosMainnet: ChainPreset = {
@@ -26,7 +35,7 @@ export const telosMainnet: ChainPreset = {
   name: 'Telos Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://api.tlos.goodblock.io'),
-  logo: 'telos.png',
+  logo: telosLogo,
 }
 
 export const worbliMainnet: ChainPreset = {
@@ -34,7 +43,7 @@ export const worbliMainnet: ChainPreset = {
   name: 'Worbli Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://api.worbli.io'),
-  logo: 'worbli.jpg',
+  logo: worbliLogo,
 }
 
 export const waxMainnet: ChainPreset = {
@@ -42,7 +51,7 @@ export const waxMainnet: ChainPreset = {
   name: 'WAX Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://wax.greymass.com'),
-  logo: 'wax.png',
+  logo: waxLogo,
 }
 
 export const bosMainnet: ChainPreset = {
@@ -50,7 +59,7 @@ export const bosMainnet: ChainPreset = {
   name: 'BOS Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://api.bossweden.org'),
-  logo: 'bos.png',
+  logo: bosLogo,
 }
 
 export const meetoneMainnet: ChainPreset = {
@@ -58,7 +67,7 @@ export const meetoneMainnet: ChainPreset = {
   name: 'MEET.ONE Mainnet',
   env: ChainEnv.Mainnet,
   url: new URL('https://fullnode.meet.one'),
-  logo: 'meetone.png',
+  logo: meetoneLogo,
 }
 
 export const jungleTestnet: ChainPreset = {
@@ -66,7 +75,7 @@ export const jungleTestnet: ChainPreset = {
   name: 'Jungle Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://api.jungle.alohaeos.com'),
-  logo: 'jungle.png',
+  logo: jungleLogo,
 }
 
 export const kylinTestnet: ChainPreset = {
@@ -74,7 +83,7 @@ export const kylinTestnet: ChainPreset = {
   name: 'Kylin Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://kylin.eossweden.org'),
-  logo: 'kylin.webp',
+  logo: kylinLogo,
 }
 
 export const telosTestnet: ChainPreset = {
@@ -82,7 +91,7 @@ export const telosTestnet: ChainPreset = {
   name: 'Telos Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://testnet.eos.miami'),
-  logo: 'telos.png',
+  logo: telosLogo,
 }
 
 export const lynxTestnet: ChainPreset = {
@@ -90,7 +99,7 @@ export const lynxTestnet: ChainPreset = {
   name: 'Lynx Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://lynxtestnet.greymass.com'),
-  logo: 'lynx.jpg',
+  logo: lynxLogo,
 }
 
 export const bosTestnet: ChainPreset = {
@@ -98,7 +107,7 @@ export const bosTestnet: ChainPreset = {
   name: 'BOS Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://bos-test.eospacex.com'),
-  logo: 'bos.png',
+  logo: bosLogo,
 }
 
 export const meetoneTestnet: ChainPreset = {
@@ -106,7 +115,7 @@ export const meetoneTestnet: ChainPreset = {
   name: 'MEET.ONE Testnet',
   env: ChainEnv.Testnet,
   url: new URL('https://sidechain-test-history.meet.one'),
-  logo: 'meetone.png',
+  logo: meetoneLogo,
 }
 
 export const all: ChainPreset[] = [

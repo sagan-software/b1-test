@@ -32,16 +32,14 @@ const TransactionRow: React.FC<{
   return (
     <TableRow>
       <TableCell>
-        <Link to={homeRoute()}>
-          <Typography
-            noWrap={true}
-            style={{ maxWidth: 150 }}
-            variant='body2'
-            color='inherit'
-          >
-            {id}
-          </Typography>
-        </Link>
+        <Typography
+          noWrap={true}
+          style={{ maxWidth: 150 }}
+          variant='body2'
+          color='inherit'
+        >
+          {id}
+        </Typography>
       </TableCell>
       <TableCell>{expiration}</TableCell>
       <Hidden smDown={true}>

@@ -52,7 +52,7 @@ const ChainPreset: React.FC<{ preset: chainPresets.ChainPreset }> = ({
 }) => (
   <ListItemLink to={chainRoute(preset.url.host)}>
     <ListItemAvatar>
-      <Avatar src={`/${preset.logo}`} />
+      <Avatar src={preset.logo} />
     </ListItemAvatar>
     <ListItemText primary={preset.name} secondary={preset.url.host} />
   </ListItemLink>
@@ -96,7 +96,9 @@ const HomePage: React.FC = () => {
           <Grid item={true} xs={12}>
             <Typography color='textSecondary' align='center'>
               View the source code on{' '}
-              <Link href='https://github.com/liamcurry/b1-test'>Github</Link>
+              <Link href='https://github.com/sagan-software/b1-test'>
+                Github
+              </Link>
             </Typography>
           </Grid>
         </Grid>

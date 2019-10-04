@@ -1,6 +1,6 @@
 import * as api from '../api'
-import { State, ChainState, Block, Account } from './state'
 import * as chainPresets from '../chainPresets'
+import { Account, Block, ChainState, State } from './state'
 
 export function getPreset(state: State): chainPresets.ChainPreset | void {}
 

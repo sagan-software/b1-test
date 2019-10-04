@@ -8,7 +8,7 @@ const Component: React.FC<{
 }> = ({ url, preset }) => {
   const chainName = preset ? preset.name : 'Unknown Chain'
   const avatar = preset ? (
-    <Avatar src={`/${preset.logo}`} style={{ width: 60, height: 60 }} />
+    <Avatar src={preset.logo} style={{ width: 60, height: 60 }} />
   ) : (
     <></>
   )
